@@ -136,7 +136,11 @@
     <ClCompile Include="tutorial2.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Renderer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Shaders\MatrixVertex.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

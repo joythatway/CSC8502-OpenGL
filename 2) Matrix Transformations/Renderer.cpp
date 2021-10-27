@@ -35,8 +35,9 @@ void Renderer::RenderScene() {
 	{
 		Vector3 tempPos = position;
 		tempPos.z += (i * 500.0f);
-		tempPos.x -= (i * 100.0f);
 		tempPos.y -= (i * 100.0f);
+		tempPos.x -= (i * 100.0f);
+		
 
 		modelMatrix =	Matrix4::Translation(tempPos) *
 						Matrix4::Rotation(rotation, Vector3(0, 1, 0)) *
