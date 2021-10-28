@@ -1,5 +1,6 @@
 #include "Mesh.h"
 #include "Matrix2.h"
+#include <algorithm>
 
 using std::string;
 
@@ -418,9 +419,7 @@ bool Mesh::GetSubMesh(const string& name, const SubMesh* s) const {
 
 Mesh* Mesh::GenerateTriangle() {
 	Mesh* m = new Mesh();
-	Mesh* m2 = new Mesh();
 	m->numVertices = 3;
-	m2->numVertices = 3;
 
 	m->vertices = new Vector3[m->numVertices];
 	m->vertices[0] = Vector3(0.0f, 0.5f, 0.0f);
@@ -431,19 +430,12 @@ Mesh* Mesh::GenerateTriangle() {
 	m->colours[0] = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
 	m->colours[1] = Vector4(0.0f, 1.0f, 0.0f, 1.0f);
 	m->colours[2] = Vector4(0.0f, 0.0f, 1.0f, 1.0f);
-	///second triangle
-	m2->vertices = new Vector3[m2->numVertices];
-	m2->vertices[0] = Vector3(1.0f, 1.5f, 1.0f);
-	m2->vertices[1] = Vector3(1.5f, 0.5f, 1.0f);
-	m2->vertices[2] = Vector3(0.5f, 0.5f, 1.0f);
 
-	m2->colours = new Vector4[m2->numVertices];
-	m2->colours[0] = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-	m2->colours[1] = Vector4(0.0f, 1.0f, 0.0f, 1.0f);
-	m2->colours[2] = Vector4(0.0f, 0.0f, 1.0f, 1.0f);
-
+	m->textureCoords = new Vector2[m->numVertices];
+	m->textureCoords[0] = Vector2(0.5f, 0.0f);
+	m->textureCoords[1] = Vector2(1.0f, 1.0f);
+	m->textureCoords[2] = Vector2(0.0f, 1.0f);
 
 	m->BufferData();
-	//m2->BufferData();
 	return m;
 }

@@ -1,8 +1,9 @@
 #include "Renderer.h"
+#include "Camera.h"
 
 Renderer::Renderer(Window& parent) :OGLRenderer(parent) {
 	triangle = Mesh::GenerateTriangle();
-
+	camera = new Camera();
 	matrixShader = new Shader("MatrixVertex.glsl", "colourFragment.glsl");
 
 	if (!matrixShader->LoadSuccess()) {
@@ -31,13 +32,12 @@ void Renderer::RenderScene() {
 
 	glUniformMatrix4fv(glGetUniformLocation(matrixShader->GetProgram(), "viewMatrix"), 1, false, viewMatrix.values);
 
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < 3; ++i)
 	{
 		Vector3 tempPos = position;
 		tempPos.z += (i * 500.0f);
-		tempPos.y -= (i * 100.0f);
 		tempPos.x -= (i * 100.0f);
-		
+		tempPos.y -= (i * 100.0f);
 
 		modelMatrix =	Matrix4::Translation(tempPos) *
 						Matrix4::Rotation(rotation, Vector3(0, 1, 0)) *
@@ -46,3 +46,19 @@ void Renderer::RenderScene() {
 		triangle->Draw();
 	}
 }
+void Renderer::UpdateScene(float dt) {
+	camera->UpdateCamera(dt);
+	viewMatrix = camera->BuildViewMatrix();
+}
+
+//void OGLRenderer::UpdateShaderMatrices() {
+//	if (currentShader) {
+//		glUniformMatrix4fv(glGetUniformLocation(currentShader->GetProgram(), "modelMatrix"), 1, false, modelMatrix.values);
+//
+//		glUniformMatrix4fv(glGetUniformLocation(currentShader->GetProgram(), "viewMatrix"), 1, false, viewMatrix.values);
+//
+//		glUniformMatrix4fv(glGetUniformLocation(currentShader->GetProgram(), "projMatrix"), 1, false, projMatrix.values);
+//
+//		glUniformMatrix4fv(glGetUniformLocation(currentShader->GetProgram(), "textureMatrix"), 1, false, textureMatrix.values);
+//	}
+//}

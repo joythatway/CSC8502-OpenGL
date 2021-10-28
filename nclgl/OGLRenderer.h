@@ -61,6 +61,7 @@ protected:
 	virtual void	Resize(int x, int y);	
 	void			UpdateShaderMatrices();
 	void			BindShader(Shader*s);
+	void SetTextureRepeating(GLuint target, bool state);//28/10/2021-tutorial 3
 
 	void StartDebugGroup(const std::string& s) {
 		glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, (GLsizei)s.length(), s.c_str());
