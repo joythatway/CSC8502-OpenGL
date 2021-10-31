@@ -3,7 +3,7 @@
 #include <string>
 using std::string;
 int main() {	
-	Window w("Scissors and Stencils!", 1280, 720,false);	//This is all boring win32 window creation stuff!
+	Window w("Scissors and Stencils!", 800, 600,false);	//This is all boring win32 window creation stuff!
 	if(!w.HasInitialised()) {
 		return -1;
 	}

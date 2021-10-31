@@ -131,7 +131,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="renderer.cpp" />
     <ClCompile Include="tutorial5.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="renderer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="StencilFragment.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
