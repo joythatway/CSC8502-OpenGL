@@ -30,6 +30,24 @@ public:
 	std::vector<SceneNode*>::const_iterator GetChildIteratorStart() { return children.begin(); }
 	std::vector<SceneNode*>::const_iterator GetChildIteratorEnd() { return children.end(); }
 
+
+	//tutorial 7 begin
+	float GetBoundingRadius() const { return boundingRadius; }
+	void SetBoundingRadius(float f) { boundingRadius = f; }
+
+	float GetCameraDistance() const { return  distanceFromCamera; }
+	void SetCameraDistance(float f) { distanceFromCamera = f; }
+
+	void SetTexture(GLuint  tex) { texture = tex; }
+	GLuint GetTexture()  const { return  texture; }
+
+	static  bool  CompareByCameraDistance(SceneNode* a, SceneNode* b) {
+		return (a->distanceFromCamera < b->distanceFromCamera) ? true : false;
+	}
+	//tutorial 7 end
+
+
+
 protected:
 	SceneNode* parent;
 	Mesh* mesh;
@@ -38,4 +56,10 @@ protected:
 	Vector3 modelScale;
 	Vector4 colour;
 	std::vector<SceneNode*> children;
+
+	//tutorial 7 begin
+	float distanceFromCamera;
+	float boundingRadius;
+	GLuint texture;
+	//tutorial 7 end
 };
