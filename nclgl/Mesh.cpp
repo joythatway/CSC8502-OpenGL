@@ -23,6 +23,10 @@ Mesh::Mesh(void)	{
 	colours			= nullptr;
 	weights			= nullptr;
 	weightIndices	= nullptr;
+	//tutorial 8 begin
+	indices = nullptr;
+	numIndices = 0;
+	//tutorial 8 end
 }
 
 Mesh::~Mesh(void)	{
@@ -37,6 +41,7 @@ Mesh::~Mesh(void)	{
 	delete[]	colours;
 	delete[]	weights;
 	delete[]	weightIndices;
+	delete[] indices;//tutorial 8
 }
 
 void Mesh::Draw()	{
@@ -126,6 +131,15 @@ void	Mesh::BufferData()	{
 	glBindVertexArray(0);	
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	//tutorial 8 begin
+	if (indices) {
+		glGenBuffers(1, &bufferObject[INDEX_BUFFER]);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferObject[INDEX_BUFFER]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(GLuint), indices, GL_STATIC_DRAW);
+	}
+	//tutorial 8 end
+
 }
 
 

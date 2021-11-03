@@ -115,5 +115,10 @@ protected:
 	std::vector<int>			jointParents;
 	std::vector< SubMesh>		meshLayers;
 	std::vector<std::string>	layerNames;
+
+	//tutorial 8 begin
+	GLuint numIndices;
+	unsigned int* indices;
+	//tutorial 8 end
 };
 
