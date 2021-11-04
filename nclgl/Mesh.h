@@ -117,8 +117,8 @@ protected:
 	std::vector<std::string>	layerNames;
 
 	//tutorial 8 begin
-	GLuint numIndices;
-	unsigned int* indices;
+	//GLuint numIndices;
+	//unsigned int* indices;
 	//tutorial 8 end
 };
 
