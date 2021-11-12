@@ -120,7 +120,7 @@ void Renderer::DrawWater() {
 	glBindTexture(GL_TEXTURE_2D, waterTex);
 
 	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap);//
 
 	Vector3 hSize = heightMap->GetHeightmapSize();
 
