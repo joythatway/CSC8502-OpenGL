@@ -55,6 +55,8 @@ public:
 	static Mesh* GenerateTriangle();
 	static Mesh* LoadFromMeshFile(const std::string& name);
 	static Mesh* GenertateQuad();//tutorial 4
+	void GenerateNormals();
+	bool GetVertexIndicesForTri(unsigned int i, unsigned int& a, unsigned int& b, unsigned int& c)const;
 
 	unsigned int GetTriCount() const {
 		int primCount = indices ? numIndices : numVertices;
@@ -88,6 +90,9 @@ public:
 protected:
 	void	BufferData();
 
+	void GenerateTangents();//tu 12
+	Vector4 GenerateTangent(int a, int b, int c);//tu 12
+
 	GLuint	arrayObject;
 
 	GLuint	bufferObject[MAX_BUFFER];
@@ -100,7 +105,7 @@ protected:
 	Vector3*		vertices;
 	Vector4*		colours;
 	Vector2*		textureCoords;
-	Vector3*		normals;
+	Vector3*		normals;//tu 11
 	Vector4*		tangents;
 
 	Vector4*		weights;
@@ -116,9 +121,6 @@ protected:
 	std::vector< SubMesh>		meshLayers;
 	std::vector<std::string>	layerNames;
 
-	//tutorial 8 begin
-	//GLuint numIndices;
-	//unsigned int* indices;
-	//tutorial 8 end
+	
 };
 

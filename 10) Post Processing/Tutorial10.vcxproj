@@ -132,10 +132,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="renderer.cpp" />
     <ClCompile Include="Tutorial10.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="processfrag.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="renderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

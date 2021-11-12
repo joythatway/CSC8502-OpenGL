@@ -71,6 +71,8 @@ protected:
 		glPopDebugGroup();
 	}
 
+	void SetShaderLight(const Light& l);//tu 11
+
 	Matrix4 projMatrix;		//Projection matrix
 	Matrix4 modelMatrix;	//Model matrix. NOT MODELVIEW
 	Matrix4 viewMatrix;		//View matrix
