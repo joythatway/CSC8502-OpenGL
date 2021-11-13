@@ -1,7 +1,7 @@
 #version 330 core
 
 uniform sampler2D diffuseTex;
-uniform smapler2D bumpTex;
+uniform sampler2D bumpTex;
 
 in Vertex{
 	vec4 colour;

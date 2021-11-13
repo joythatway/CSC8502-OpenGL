@@ -35,7 +35,7 @@ Renderer::Renderer(Window& parent) :OGLRenderer(parent) {
 	}
 
 	sceneShader = new Shader("BumpVertex.glsl", "bufferFragment.glsl");
-	pointlightShader = new Shader("pointlightvert.glsl", "pointlightfrag.glsl");
+	pointlightShader = new Shader("pointlightvertex.glsl", "pointlightfrag.glsl");
 	combineShader = new Shader("combinevert.glsl", "combinefrag.glsl");
 
 	if (!sceneShader->LoadSuccess() || !pointlightShader->LoadSuccess() || !combineShader->LoadSuccess()) {
