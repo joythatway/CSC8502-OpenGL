@@ -19,6 +19,14 @@ public:
 
 	void UpdateCamera(float dt = 1.0f);
 
+	void autoCamera(float pitch, float yaw, Vector3 position) {
+		this->pitch = pitch;
+		this->yaw = yaw;
+		this->position = position;
+	}// the temp func in 15/11/2021
+
+
+
 	Matrix4 BuildViewMatrix();
 
 	Vector3 GetPosition() const { return position; }
