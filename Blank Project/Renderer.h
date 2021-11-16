@@ -5,6 +5,8 @@ class Camera;
 class Shader;
 class HeightMap;
 class Mesh;
+class MeshAnimation;
+class MeshMaterial;
 
 class Renderer : public OGLRenderer	{
 public:
@@ -19,6 +21,7 @@ protected:
 	void DrawHeightmap();
 	void DrawWater();
 	void DrawSkybox();
+	void DrawModel1();
 
 	Shader* lightShader;
 	Shader* reflectShader;
@@ -33,6 +36,7 @@ protected:
 	GLuint waterTex;
 	GLuint earthTex;
 	GLuint earthBump;
+	GLuint waterBump;
 
 	float waterRotate;
 	float waterCycle;
@@ -54,5 +58,16 @@ protected:
 	vector<Mesh*> sceneMeshes;
 	vector<Matrix4> sceneTransform;
 	Light* light_shadow;
+
+	//tu 9
+	
+	Mesh* model1mesh;
+	Shader* model1shader;
+	MeshAnimation* model1anim;
+	MeshMaterial* model1material;
+	vector<GLuint> model1matTextures;
+
+	int currentFrame;
+	float frameTime;
 
 };

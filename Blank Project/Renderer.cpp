@@ -4,19 +4,27 @@
 #include "../nclgl/Shader.h"
 #include "../nclgl/camera.h"
 
+#include "../nclgl/MeshAnimation.h"
+#include "../nclgl/MeshMaterial.h"
+
 #define SHADOWSIZE 2048
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
-	//triangle = Mesh::GenerateTriangle();
+	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_CULL_FACE);
+
+
 	quad = Mesh::GenertateQuad();
 
-	heightMap = new HeightMap(TEXTUREDIR"noise.png");
+	heightMap = new HeightMap(TEXTUREDIR"noise3.png");
 
 	waterTex = SOIL_load_OGL_texture(TEXTUREDIR"water.TGA", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
 
-	earthTex = SOIL_load_OGL_texture(TEXTUREDIR"Barren Reds.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+	//earthTex = SOIL_load_OGL_texture(TEXTUREDIR"Barren Reds.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+	earthTex = SOIL_load_OGL_texture(TEXTUREDIR"fire.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
 
 	earthBump = SOIL_load_OGL_texture(TEXTUREDIR"Barren RedsDOT3.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+	//waterBump= SOIL_load_OGL_texture(TEXTUREDIR"waterbump1.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
 
 	/*
 	cubeMap = SOIL_load_OGL_cubemap(TEXTUREDIR"rusted_west.jpg", TEXTUREDIR"rusted_east.jpg",
@@ -39,18 +47,40 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	if (!waterTex) {
 		return;
 	}
+	//if (!waterBump) {
+	//	return;
+	//}
 
 	SetTextureRepeating(earthTex, true);
 	SetTextureRepeating(earthBump, true);
 	SetTextureRepeating(waterTex, true);
+	//SetTextureRepeating(waterBump, true);
 
 	reflectShader = new Shader("reflectVertex.glsl", "reflectFragment.glsl");
 	skyboxShader = new Shader("skyboxVertex.glsl", "skyboxFragment.glsl");
 	lightShader = new Shader("PerPixelVertex.glsl", "PerPixelFragment.glsl");
+	model1shader = new  Shader("SkinningVertex.glsl", "texturedFragment.glsl");
 
 	if (!reflectShader->LoadSuccess() || !skyboxShader->LoadSuccess() || !lightShader->LoadSuccess()) {
 		return;
 	}
+	if (!model1shader->LoadSuccess()) {
+		return;
+	}
+	model1mesh = Mesh::LoadFromMeshFile("Role_T.msh");
+	model1anim = new  MeshAnimation("Role_T.anm");
+	model1material = new  MeshMaterial("Role_T.mat");
+	for (int i = 0; i < model1mesh->GetSubMeshCount(); ++i) {
+		const  MeshMaterialEntry* matEntry = model1material->GetMaterialForLayer(i);
+
+		const  string* filename = nullptr;
+		matEntry->GetEntry("Diffuse", &filename);
+		string  path = TEXTUREDIR + *filename;
+		GLuint  texID = SOIL_load_OGL_texture(path.c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y);
+		model1matTextures.emplace_back(texID);
+	}
+	currentFrame = 0;
+	frameTime = 0.0f;
 
 	Vector3 heightmapSize = heightMap->GetHeightmapSize();
 
@@ -81,6 +111,12 @@ Renderer::~Renderer(void)	{
 	delete lightShader;
 	delete light;
 
+
+	
+	delete model1mesh;
+	delete model1anim;
+	delete model1material;
+	delete model1shader;
 	/*
 	glDeleteTextures(1, &shadowTex);
 	glDeleteFramebuffers(1, &shadowFBO);
@@ -104,6 +140,12 @@ void Renderer::UpdateScene(float dt) {
 	//	sceneTransform[i] = Matrix4::Translation(t) * Matrix4::Rotation(sceneTime * 10 * i, Vector3(1, 0, 0));
 	//}
 
+	frameTime -= dt;
+	while (frameTime < 0.0f) {
+		currentFrame = (currentFrame + 1) % model1anim->GetFrameCount();
+		frameTime += 1.0f / model1anim->GetFrameRate();
+	}
+
 }
 
 void Renderer::RenderScene() {
@@ -111,6 +153,7 @@ void Renderer::RenderScene() {
 	DrawSkybox();
 	DrawHeightmap();
 	DrawWater();
+	DrawModel1();
 	//DrawShadowScene();
 	//DrawMainScene();
 }
@@ -157,6 +200,10 @@ void Renderer::DrawWater() {
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, waterTex);
+
+	//glUniform1i(glGetUniformLocation(reflectShader->GetProgram(), "bumpTex"), 1);
+	//glActiveTexture(GL_TEXTURE2);
+	//glBindTexture(GL_TEXTURE_2D, waterBump);
 
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap);//
@@ -223,4 +270,30 @@ void Renderer::DrawMainScene() {
 		sceneMeshes[i]->Draw();
 	}
 
+}
+
+void Renderer::DrawModel1() {
+	BindShader(model1shader);
+	glUniform1i(glGetUniformLocation(model1shader->GetProgram(), "diffuseTex"), 0);
+
+	UpdateShaderMatrices();
+
+	vector <Matrix4 > frameMatrices;
+
+	const  Matrix4* invBindPose = model1mesh->GetInverseBindPose();
+	const  Matrix4* frameData = model1anim->GetJointData(currentFrame);
+
+	for (unsigned int i = 0; i < model1mesh->GetJointCount(); ++i) {
+		frameMatrices.emplace_back(frameData[i] * invBindPose[i]);
+	}
+
+
+	int j = glGetUniformLocation(model1shader->GetProgram(), "joints");
+	glUniformMatrix4fv(j, frameMatrices.size(), false, (float*)frameMatrices.data());
+
+	for (int i = 0; i < model1mesh->GetSubMeshCount(); ++i) {
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, model1matTextures[i]);
+		model1mesh->DrawSubMesh(i);
+	}
 }
