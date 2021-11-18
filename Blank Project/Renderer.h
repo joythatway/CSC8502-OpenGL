@@ -1,5 +1,8 @@
 #pragma once
 #include "../NCLGL/OGLRenderer.h"
+#include "..//nclgl/SceneNode.h"
+#include "..//nclgl/CubeRobot.h"
+#include "..//nclgl/teapot.h"
 
 class Camera;
 class Shader;
@@ -69,5 +72,15 @@ protected:
 
 	int currentFrame;
 	float frameTime;
+
+
+	//tu 6
+
+	void DrawNode(SceneNode* n);
+
+	SceneNode* root;
+	Mesh* cube;
+	Mesh* teapot;
+	Shader* shaderforcube;
 
 };

@@ -3,8 +3,8 @@
 CubeRobot::CubeRobot(Mesh* cube) {
 
 	SceneNode* body = new SceneNode(cube, Vector4(1, 0, 0, 1));
-	body->SetModelScale(Vector3(10, 15, 5));
-	body->SetTransform(Matrix4::Translation(Vector3(0, 35, 0)));
+	body->SetModelScale(Vector3(10, 15, 5));//!!
+	body->SetTransform(Matrix4::Translation(Vector3(100, 35, 100)));//!!
 	AddChild(body);
 
 	head = new SceneNode(cube, Vector4(0, 1, 0, 1));
@@ -47,7 +47,7 @@ CubeRobot::CubeRobot(Mesh* cube) {
 }
 
 void CubeRobot::Update(float dt) {
-	transform = transform * Matrix4::Rotation(30.0f * dt, Vector3(0, 1, 0));
+	transform = transform * Matrix4::Rotation(0.0f * dt, Vector3(0, 1, 0));//change 30.0f to 0.0f
 
 	head->SetTransform(head->GetTransform() * Matrix4::Rotation(-30.0f * dt, Vector3(0, 1, 0)));
 

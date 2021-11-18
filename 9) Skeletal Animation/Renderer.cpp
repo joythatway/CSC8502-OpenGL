@@ -18,6 +18,9 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
 	anim = new  MeshAnimation("Role_T.anm");
 	material = new  MeshMaterial("Role_T.mat");
 
+	//mesh = Mesh::LoadFromMeshFile("Teapot001.msh");
+	//material = new  MeshMaterial("Teapot001.mat");
+
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
 		const  MeshMaterialEntry* matEntry = material->GetMaterialForLayer(i);
 
