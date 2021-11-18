@@ -61,7 +61,13 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	lightShader = new Shader("PerPixelVertex.glsl", "PerPixelFragment.glsl");
 	model1shader = new  Shader("SkinningVertex.glsl", "texturedFragment.glsl");
 
-	if (!reflectShader->LoadSuccess() || !skyboxShader->LoadSuccess() || !lightShader->LoadSuccess()) {
+	if (!reflectShader->LoadSuccess()) {
+		return;
+	}
+	if (!skyboxShader->LoadSuccess()) {
+		return;
+	}
+	if (!lightShader->LoadSuccess()) {
 		return;
 	}
 	if (!model1shader->LoadSuccess()) {
