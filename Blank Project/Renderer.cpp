@@ -17,13 +17,14 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	teapot = Mesh::LoadFromMeshFile("Teapot001.msh");
 
 	quad = Mesh::GenertateQuad();
+	//heightMap = new HeightMap(TEXTUREDIR"terrain03.png");
 	heightMap = new HeightMap(TEXTUREDIR"noise3pppp.png");
 	waterTex = SOIL_load_OGL_texture(TEXTUREDIR"water.TGA", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
 	//earthTex = SOIL_load_OGL_texture(TEXTUREDIR"Barren Reds.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
-	earthTex = SOIL_load_OGL_texture(TEXTUREDIR"fire.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+	earthTex = SOIL_load_OGL_texture(TEXTUREDIR"terrain02.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
 	earthBump = SOIL_load_OGL_texture(TEXTUREDIR"Barren RedsDOT3.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
 	
-	earthBump = SOIL_load_OGL_texture(TEXTUREDIR"NormalMapfire.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+	//earthBump = SOIL_load_OGL_texture(TEXTUREDIR"NormalMapfire.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
 	//waterBump= SOIL_load_OGL_texture(TEXTUREDIR"waterbump1.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
 	/*
 	cubeMap = SOIL_load_OGL_cubemap(TEXTUREDIR"rusted_west.jpg", TEXTUREDIR"rusted_east.jpg",
@@ -99,8 +100,8 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 
 
 
-
-	light = new Light(heightmapSize * Vector3(0.5f, 1.5f, 0.5f), Vector4(1, 1, 1, 1), heightmapSize.x);
+	//light = new Light(heightmapSize * Vector3(0.5f, 10.5f, 0.5f), Vector4(1, 1, 1, 1), 1.5f*heightmapSize.x);
+	light = new Light(heightmapSize * Vector3(0.5f, 3.5f, 0.5f), Vector4(1, 1, 1, 1), 1.5f*heightmapSize.x);//1.5f->1.0f
 	projMatrix = Matrix4::Perspective(1.0f, 15000.0f, (float)width / (float)height, 45.0f);
 
 
@@ -153,6 +154,7 @@ Renderer::~Renderer(void)	{
 
 void Renderer::UpdateScene(float dt) {
 	camera->UpdateCamera(dt);
+	light->Update(dt);
 	viewMatrix = camera->BuildViewMatrix();
 	waterRotate += dt * 2.0f;
 	waterCycle += dt * 0.25f;
@@ -241,7 +243,7 @@ void Renderer::DrawWater() {
 
 	Vector3 hSize = heightMap->GetHeightmapSize();
 	hSize = hSize * Vector3(1, 1, 1);//control water level by change the y values
-	hSize = hSize - Vector3(0, 10, 0);//control water level by change the y values
+	//hSize = hSize - Vector3(0, 10, 0);//control water level by change the y values
 	modelMatrix = Matrix4::Translation(hSize * 0.5f) * Matrix4::Scale(hSize * 0.5f) * Matrix4::Rotation(90, Vector3(1, 0, 0));
 
 	textureMatrix = Matrix4::Translation(Vector3(waterCycle, 0.0f, waterCycle)) * Matrix4::Scale(Vector3(10, 10, 10)) * Matrix4::Rotation(waterRotate, Vector3(0, 0, 1));
