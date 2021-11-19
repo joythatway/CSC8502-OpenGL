@@ -25,6 +25,12 @@ public:
 		this->position = position;
 	}// the temp func in 15/11/2021
 
+	bool autocamera = false;
+	bool speedup = false;
+	//int mode = 0;
+	bool cameramode = true;
+	Vector3 firstposition;
+	Vector3 secondposition;
 
 
 	Matrix4 BuildViewMatrix();

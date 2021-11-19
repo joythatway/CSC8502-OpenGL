@@ -7,6 +7,8 @@
 #include "../nclgl/MeshAnimation.h"
 #include "../nclgl/MeshMaterial.h"
 
+#include "model1.h"
+
 #define SHADOWSIZE 2048
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
@@ -25,7 +27,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	earthBump = SOIL_load_OGL_texture(TEXTUREDIR"Barren RedsDOT3.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
 	
 	//earthBump = SOIL_load_OGL_texture(TEXTUREDIR"NormalMapfire.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
-	//waterBump= SOIL_load_OGL_texture(TEXTUREDIR"waterbump1.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+	waterBump= SOIL_load_OGL_texture(TEXTUREDIR"waterbump.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
 	/*
 	cubeMap = SOIL_load_OGL_cubemap(TEXTUREDIR"rusted_west.jpg", TEXTUREDIR"rusted_east.jpg",
 		TEXTUREDIR"rusted_up.jpg", TEXTUREDIR"rusted_down.jpg",
@@ -47,14 +49,14 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	if (!waterTex) {
 		return;
 	}
-	//if (!waterBump) {
-	//	return;
-	//}
+	if (!waterBump) {
+		return;
+	}
 
 	SetTextureRepeating(earthTex, true);
 	SetTextureRepeating(earthBump, true);
 	SetTextureRepeating(waterTex, true);
-	//SetTextureRepeating(waterBump, true);
+	SetTextureRepeating(waterBump, true);
 
 	reflectShader = new Shader("reflectVertex.glsl", "reflectFragment.glsl");
 	skyboxShader = new Shader("skyboxVertex.glsl", "skyboxFragment.glsl");
@@ -109,6 +111,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	root = new  SceneNode();//tu6
 	root->AddChild(new  CubeRobot(cube));//tu6
 	root->AddChild(new Teapot(teapot));
+	root->AddChild(new CubeRobot(model1mesh));
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
@@ -226,7 +229,7 @@ void Renderer::DrawHeightmap() {
 
 void Renderer::DrawWater() {
 	BindShader(reflectShader);
-
+	
 	glUniform3fv(glGetUniformLocation(reflectShader->GetProgram(), "cameraPos"), 1, (float*)& camera->GetPosition());
 	glUniform1i(glGetUniformLocation(reflectShader->GetProgram(), "diffuseTex"), 0);
 	glUniform1i(glGetUniformLocation(reflectShader->GetProgram(), "cubeTex"), 2);
@@ -240,6 +243,7 @@ void Renderer::DrawWater() {
 
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap);//
+	
 
 	Vector3 hSize = heightMap->GetHeightmapSize();
 	hSize = hSize * Vector3(1, 1, 1);//control water level by change the y values
