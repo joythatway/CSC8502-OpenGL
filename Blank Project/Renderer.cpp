@@ -160,7 +160,7 @@ void Renderer::UpdateScene(float dt) {
 	light->Update(dt);
 	viewMatrix = camera->BuildViewMatrix();
 	waterRotate += dt * 2.0f;
-	waterCycle += dt * 0.25f;
+	waterCycle += dt * 1.25f;//0.25
 	//sceneTime += dt;
 	//for (int i = 1; i < 4; ++i) {
 	//	Vector3 t = Vector3(-10 + (5 * i), 2.0f + sin(sceneTime * i), 0);
