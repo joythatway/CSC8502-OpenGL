@@ -19,6 +19,10 @@ public:
 	void RenderScene() override;
 	void UpdateScene(float dt) override;
 
+	void loadshader();
+	void loadtexture();
+	void loadpostprocessing();
+
 protected:
 	//cube Mapping
 	void DrawHeightmap();
@@ -32,6 +36,7 @@ protected:
 
 	HeightMap* heightMap;
 	Mesh* quad;
+	Mesh* post_quad;
 
 	Light* light;
 	Camera* camera;
@@ -83,4 +88,16 @@ protected:
 	Mesh* teapot;
 	Shader* shaderforcube;
 
+
+	//tu 10 post processing
+	void PresentScene();
+	void DrawPostProcess();
+	void DrawScene();
+
+	Shader* post_sceneShader;
+	Shader* post_processShader;
+	GLuint bufferFBO;
+	GLuint processFBO;
+	GLuint bufferColourTex[2];
+	GLuint bufferDepthTex;
 };

@@ -10,75 +10,20 @@
 #include "model1.h"
 
 #define SHADOWSIZE 2048
+const int POST_PASSES = 10;//post processing
 
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
-	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
 
 	cube = Mesh::LoadFromMeshFile("OffsetCubeY.msh");//tu6
 	teapot = Mesh::LoadFromMeshFile("Teapot001.msh");
 
 	quad = Mesh::GenertateQuad();
-	//heightMap = new HeightMap(TEXTUREDIR"terrain03.png");
-	heightMap = new HeightMap(TEXTUREDIR"noise3pppp.png");
-	waterTex = SOIL_load_OGL_texture(TEXTUREDIR"water.TGA", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
-	//earthTex = SOIL_load_OGL_texture(TEXTUREDIR"Barren Reds.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
-	earthTex = SOIL_load_OGL_texture(TEXTUREDIR"terrain02.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
-	earthBump = SOIL_load_OGL_texture(TEXTUREDIR"Barren RedsDOT3.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+	post_quad = Mesh::GenertateQuad();
 	
-	//earthBump = SOIL_load_OGL_texture(TEXTUREDIR"NormalMapfire.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
-	waterBump= SOIL_load_OGL_texture(TEXTUREDIR"waterbump.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
-	/*
-	cubeMap = SOIL_load_OGL_cubemap(TEXTUREDIR"rusted_west.jpg", TEXTUREDIR"rusted_east.jpg",
-		TEXTUREDIR"rusted_up.jpg", TEXTUREDIR"rusted_down.jpg",
-		TEXTUREDIR"rusted_south.jpg", TEXTUREDIR"rusted_north.jpg", SOIL_LOAD_RGB, SOIL_CREATE_NEW_ID, 0);
-	*/
-	cubeMap = SOIL_load_OGL_cubemap(TEXTUREDIR"sright.jpg", TEXTUREDIR"sleft.jpg",
-		TEXTUREDIR"stop.jpg", TEXTUREDIR"sbottom.jpg",
-		TEXTUREDIR"sfront.jpg", TEXTUREDIR"sback.jpg", SOIL_LOAD_RGB, SOIL_CREATE_NEW_ID, 0);
+	loadtexture();
 
-	if (!earthTex) {
-		return;
-	}
-	if (!earthBump) {
-		return;
-	}
-	if (!cubeMap) {
-		return;
-	}
-	if (!waterTex) {
-		return;
-	}
-	if (!waterBump) {
-		return;
-	}
-
-	SetTextureRepeating(earthTex, true);
-	SetTextureRepeating(earthBump, true);
-	SetTextureRepeating(waterTex, true);
-	SetTextureRepeating(waterBump, true);
-
-	reflectShader = new Shader("reflectVertex.glsl", "reflectFragment.glsl");
-	skyboxShader = new Shader("skyboxVertex.glsl", "skyboxFragment.glsl");
-	//lightShader = new Shader("PerPixelVertex.glsl", "PerPixelFragment.glsl");
-	lightShader = new Shader("bumpvertex.glsl", "bumpfragment.glsl");
-	model1shader = new  Shader("SkinningVertex.glsl", "texturedFragment.glsl");
-	shaderforcube = new  Shader("SceneVertex.glsl", "SceneFragment.glsl");//tu6
-	if (!shaderforcube) {
-		return;
-	}
-	if (!reflectShader->LoadSuccess()) {
-		return;
-	}
-	if (!skyboxShader->LoadSuccess()) {
-		return;
-	}
-	if (!lightShader->LoadSuccess()) {
-		return;
-	}
-	if (!model1shader->LoadSuccess()) {
-		return;
-	}
+	loadshader();
+	
 	model1mesh = Mesh::LoadFromMeshFile("Role_T.msh");
 	model1anim = new  MeshAnimation("Role_T.anm");
 	model1material = new  MeshMaterial("Role_T.mat");
@@ -113,6 +58,8 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	root->AddChild(new Teapot(teapot));
 	root->AddChild(new CubeRobot(model1mesh));
 
+	loadpostprocessing();
+
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -143,6 +90,17 @@ Renderer::~Renderer(void)	{
 	delete  cube;
 	delete teapot;
 	//tu6 end
+	
+	//post processing begin
+	delete post_sceneShader;
+	delete post_processShader;
+	glDeleteTextures(2, bufferColourTex);
+	glDeleteTextures(1, &bufferDepthTex);
+	glDeleteFramebuffers(1, &bufferFBO);
+	glDeleteFramebuffers(1, &processFBO);
+	//post processing end
+	
+	
 	/*
 	glDeleteTextures(1, &shadowTex);
 	glDeleteFramebuffers(1, &shadowFBO);
@@ -155,6 +113,113 @@ Renderer::~Renderer(void)	{
 	*/
 }
 
+void Renderer::loadshader() {
+
+	reflectShader = new Shader("reflectVertex.glsl", "reflectFragment.glsl");
+	skyboxShader = new Shader("skyboxVertex.glsl", "skyboxFragment.glsl");
+	//lightShader = new Shader("PerPixelVertex.glsl", "PerPixelFragment.glsl");
+	lightShader = new Shader("bumpvertex.glsl", "bumpfragment.glsl");
+	model1shader = new  Shader("SkinningVertex.glsl", "texturedFragment.glsl");
+	shaderforcube = new  Shader("SceneVertex.glsl", "SceneFragment.glsl");//tu6
+	post_sceneShader = new Shader("TexturedVertex.glsl", "TexturedFragment.glsl");//tu 10
+	post_processShader = new Shader("TexturedVertex.glsl", "processfrag.glsl");//tu 10
+	if (!post_sceneShader) {
+		return;
+	}
+	if (!post_processShader) {
+		return;
+	}
+	if (!shaderforcube) {
+		return;
+	}
+	if (!reflectShader->LoadSuccess()) {
+		return;
+	}
+	if (!skyboxShader->LoadSuccess()) {
+		return;
+	}
+	if (!lightShader->LoadSuccess()) {
+		return;
+	}
+	if (!model1shader->LoadSuccess()) {
+		return;
+	}
+}
+
+void Renderer::loadtexture() {
+
+	heightMap = new HeightMap(TEXTUREDIR"noise3pppp.png");
+	waterTex = SOIL_load_OGL_texture(TEXTUREDIR"water.TGA", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+	earthTex = SOIL_load_OGL_texture(TEXTUREDIR"terrain02.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+	earthBump = SOIL_load_OGL_texture(TEXTUREDIR"Barren RedsDOT3.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+	waterBump = SOIL_load_OGL_texture(TEXTUREDIR"waterbump.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+	/*
+	cubeMap = SOIL_load_OGL_cubemap(TEXTUREDIR"rusted_west.jpg", TEXTUREDIR"rusted_east.jpg",
+		TEXTUREDIR"rusted_up.jpg", TEXTUREDIR"rusted_down.jpg",
+		TEXTUREDIR"rusted_south.jpg", TEXTUREDIR"rusted_north.jpg", SOIL_LOAD_RGB, SOIL_CREATE_NEW_ID, 0);
+	*/
+	cubeMap = SOIL_load_OGL_cubemap(TEXTUREDIR"sright.jpg", TEXTUREDIR"sleft.jpg",
+		TEXTUREDIR"stop.jpg", TEXTUREDIR"sbottom.jpg",
+		TEXTUREDIR"sfront.jpg", TEXTUREDIR"sback.jpg", SOIL_LOAD_RGB, SOIL_CREATE_NEW_ID, 0);
+
+	if (!earthTex) {
+		return;
+	}
+	if (!earthBump) {
+		return;
+	}
+	if (!cubeMap) {
+		return;
+	}
+	if (!waterTex) {
+		return;
+	}
+	if (!waterBump) {
+		return;
+	}
+	SetTextureRepeating(earthTex, true);
+	SetTextureRepeating(earthBump, true);
+	SetTextureRepeating(waterTex, true);
+	SetTextureRepeating(waterBump, true);
+}
+
+void Renderer::loadpostprocessing() {
+	//post processing begin
+	glGenTextures(1, &bufferDepthTex);
+	glBindTexture(GL_TEXTURE_2D, bufferDepthTex);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
+
+	for (int i = 0; i < 2; ++i) {
+		glGenTextures(1, &bufferColourTex[i]);
+		glBindTexture(GL_TEXTURE_2D, bufferColourTex[i]);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+	}
+
+	glGenFramebuffers(1, &bufferFBO);
+	glGenFramebuffers(1, &processFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, bufferFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, bufferDepthTex, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, bufferDepthTex, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bufferColourTex[0], 0);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE || !bufferDepthTex || !bufferColourTex[0]) {
+		return;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//post processing end
+
+}
 void Renderer::UpdateScene(float dt) {
 	camera->UpdateCamera(dt);
 	light->Update(dt);
@@ -183,6 +248,11 @@ void Renderer::RenderScene() {
 	DrawWater();
 	DrawModel1();
 
+	//if (Window::GetKeyboard()->KeyDown(KEYBOARD_3)) {
+		DrawScene();
+		DrawPostProcess();
+		PresentScene();
+	//}
 	//tu6 begin
 	BindShader(shaderforcube);
 	UpdateShaderMatrices();
@@ -355,3 +425,64 @@ void   Renderer::DrawNode(SceneNode* n) {
 		DrawNode(*i);
 	}
 }
+
+//post processing begin
+void Renderer::DrawScene() {
+	glBindFramebuffer(GL_FRAMEBUFFER, bufferFBO);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+	BindShader(post_sceneShader);
+	projMatrix = Matrix4::Perspective(1.0f, 10000.0f, (float)width / (float)height, 45.0f);
+	UpdateShaderMatrices();
+	glUniform1i(glGetUniformLocation(post_sceneShader->GetProgram(), "diffuseTex"), 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, earthTex);
+	heightMap->Draw();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Renderer::DrawPostProcess() {
+	glBindFramebuffer(GL_FRAMEBUFFER, processFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bufferColourTex[1], 0);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+	BindShader(post_processShader);
+	modelMatrix.ToIdentity();
+	viewMatrix.ToIdentity();
+	projMatrix.ToIdentity();
+	UpdateShaderMatrices();
+
+	glDisable(GL_DEPTH_TEST);
+
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(glGetUniformLocation(post_processShader->GetProgram(), "sceneTex"), 0);
+	for (int i = 0; i < POST_PASSES; ++i) {
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bufferColourTex[1], 0);
+		glUniform1i(glGetUniformLocation(post_processShader->GetProgram(), "isVertical"), 0);
+		glBindTexture(GL_TEXTURE_2D, bufferColourTex[0]);
+		post_quad->Draw();
+
+		glUniform1i(glGetUniformLocation(post_processShader->GetProgram(), "isVertical"), 1);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bufferColourTex[0], 0);
+		glBindTexture(GL_TEXTURE_2D, bufferColourTex[1]);
+		post_quad->Draw();
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glEnable(GL_DEPTH_TEST);
+}
+
+void Renderer::PresentScene() {
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	BindShader(sceneShader);
+	modelMatrix.ToIdentity();
+	viewMatrix.ToIdentity();
+	projMatrix.ToIdentity();
+	UpdateShaderMatrices();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, bufferColourTex[0]);
+	glUniform1i(glGetUniformLocation(sceneShader->GetProgram(), "diffuseTex"), 0);
+	quad->Draw();
+}
+//post processing end
