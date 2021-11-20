@@ -15,6 +15,7 @@ const int POST_PASSES = 10;//post processing
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 
 	cube = Mesh::LoadFromMeshFile("OffsetCubeY.msh");//tu6
+	cube2 = Mesh::LoadFromMeshFile("OffsetCubeY.msh");
 	teapot = Mesh::LoadFromMeshFile("Teapot001.msh");
 
 	quad = Mesh::GenertateQuad();
@@ -55,6 +56,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 
 	root = new  SceneNode();//tu6
 	root->AddChild(new  CubeRobot(cube));//tu6
+	root->AddChild(new CubeRobot(cube2));//tu6
 	root->AddChild(new Teapot(teapot));
 	root->AddChild(new CubeRobot(model1mesh));
 
@@ -88,6 +90,7 @@ Renderer::~Renderer(void)	{
 	delete  root;
 	delete  shaderforcube;
 	delete  cube;
+	delete  cube2;
 	delete teapot;
 	//tu6 end
 	
@@ -119,7 +122,7 @@ void Renderer::loadshader() {
 	skyboxShader = new Shader("skyboxVertex.glsl", "skyboxFragment.glsl");
 	//lightShader = new Shader("PerPixelVertex.glsl", "PerPixelFragment.glsl");
 	lightShader = new Shader("bumpvertex.glsl", "bumpfragment.glsl");
-	model1shader = new  Shader("SkinningVertex.glsl", "texturedFragment.glsl");
+	model1shader = new  Shader("SkinningVertex.glsl", "TexturedFragment.glsl");
 	shaderforcube = new  Shader("SceneVertex.glsl", "SceneFragment.glsl");//tu6
 	post_sceneShader = new Shader("TexturedVertex.glsl", "TexturedFragment.glsl");//tu 10
 	post_processShader = new Shader("TexturedVertex.glsl", "processfrag.glsl");//tu 10
@@ -248,11 +251,11 @@ void Renderer::RenderScene() {
 	DrawWater();
 	DrawModel1();
 
-	//if (Window::GetKeyboard()->KeyDown(KEYBOARD_3)) {
+	if (Window::GetKeyboard()->KeyDown(KEYBOARD_3)) {
 		DrawScene();
 		DrawPostProcess();
 		PresentScene();
-	//}
+	}
 	//tu6 begin
 	BindShader(shaderforcube);
 	UpdateShaderMatrices();
@@ -383,6 +386,12 @@ void Renderer::DrawMainScene() {
 void Renderer::DrawModel1() {
 	BindShader(model1shader);
 	glUniform1i(glGetUniformLocation(model1shader->GetProgram(), "diffuseTex"), 0);
+	
+	
+	//glUniform3fv(glGetUniformLocation(model1shader->GetProgram(), "position"), Vector3(100, 100, 100));
+	Vector3 hSize = heightMap->GetHeightmapSize();//change the soldiers
+	hSize = hSize * Vector3(1, 20, 1);// control water level by change the y values
+	modelMatrix = Matrix4::Translation(hSize * 0.5f) * Matrix4::Scale(hSize * 0.1f) * Matrix4::Rotation(0, Vector3(1, 0, 0));//change!!!
 
 	UpdateShaderMatrices();
 

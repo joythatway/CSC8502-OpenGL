@@ -85,6 +85,7 @@ protected:
 
 	SceneNode* root;
 	Mesh* cube;
+	Mesh* cube2;
 	Mesh* teapot;
 	Shader* shaderforcube;
 
