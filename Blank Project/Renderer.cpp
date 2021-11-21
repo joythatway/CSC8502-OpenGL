@@ -390,8 +390,8 @@ void Renderer::DrawModel1() {
 	
 	//glUniform3fv(glGetUniformLocation(model1shader->GetProgram(), "position"), Vector3(100, 100, 100));
 	Vector3 hSize = heightMap->GetHeightmapSize();//change the soldiers
-	hSize = hSize * Vector3(1, 20, 1);// control water level by change the y values
-	modelMatrix = Matrix4::Translation(hSize * 0.5f) * Matrix4::Scale(hSize * 0.1f) * Matrix4::Rotation(0, Vector3(1, 0, 0));//change!!!
+	hSize = hSize * Vector3(1, 26, 1);// control water level by change the y values
+	modelMatrix = Matrix4::Translation((hSize * 0.5f)-Vector3(-300,3050,-300)) * Matrix4::Scale(hSize * 0.06f) * Matrix4::Rotation(0, Vector3(1, 0, 0));//change!!!
 
 	UpdateShaderMatrices();
 
