@@ -12,6 +12,7 @@ out vec4 fragColour;
 
 void main(void){
 	fragColour=IN.colour;
+	
 	if(useTexture>0){
 		fragColour *= texture(diffuseTex, IN.texCoord);
 	}

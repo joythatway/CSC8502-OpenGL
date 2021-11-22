@@ -133,7 +133,7 @@ void Renderer::loadmodel() {
 
 	//model:sphere begin
 	//model_teapot = new SceneNode(sphere,Vector4(0,0,1,1));
-	
+	//
 	//model_teapot_texture = SOIL_load_OGL_texture(TEXTUREDIR"terrain02.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
 		
 	sphereTex = SOIL_load_OGL_texture(TEXTUREDIR"tree.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
