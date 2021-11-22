@@ -47,6 +47,7 @@ protected:
 	GLuint earthTex;
 	GLuint earthBump;
 	GLuint waterBump;
+	GLuint sphereTex;
 
 	float waterRotate;
 	float waterCycle;
@@ -123,4 +124,17 @@ protected:
 	Light* pointLights;
 	Mesh* sphere;
 	//tu 15 end
+
+	SceneNode* model_teapot;
+	MeshAnimation* model_teapot_anim;
+	MeshMaterial* model_teapot_material;
+	vector<GLuint> model_teapot_texture;
+
+	Mesh* soldier_mesh;
+	Shader* soldier_shader;
+	MeshAnimation* soldier_anim;
+	MeshMaterial* soldier_material;
+	vector<GLuint> soldier_matTextures;
+	SceneNode* model_soldier;
+
 };

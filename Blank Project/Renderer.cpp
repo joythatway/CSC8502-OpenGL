@@ -19,7 +19,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	cube = Mesh::LoadFromMeshFile("OffsetCubeY.msh");//tu6
 	cube2 = Mesh::LoadFromMeshFile("OffsetCubeY.msh");
 	teapot = Mesh::LoadFromMeshFile("Teapot001.msh");
-	sphere = Mesh::LoadFromMeshFile("Sphere.msh");
+	sphere = Mesh::LoadFromMeshFile("tree.msh");
 
 	quad = Mesh::GenertateQuad();
 	post_quad = Mesh::GenertateQuad();
@@ -62,6 +62,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	root->AddChild(new  CubeRobot(cube));//tu6
 	//root->AddChild(new CubeRobot(cube2));//tu6
 	root->AddChild(new model(cube2));
+	loadmodel();
 	//root->AddChild(new CubeRobot(model1mesh));
 
 	//loadpostprocessing();
@@ -130,6 +131,71 @@ Renderer::~Renderer(void)	{
 }
 void Renderer::loadmodel() {
 
+	//model:sphere begin
+	//model_teapot = new SceneNode(sphere,Vector4(0,0,1,1));
+	
+	//model_teapot_texture = SOIL_load_OGL_texture(TEXTUREDIR"terrain02.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+		
+	sphereTex = SOIL_load_OGL_texture(TEXTUREDIR"tree.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+	if (!sphereTex)return;
+	model_teapot = new SceneNode(sphere,Vector4(1,1,1,1));
+	model_teapot->SetModelScale(Vector3(100, 100, 100));
+	model_teapot->SetTransform(Matrix4::Translation(Vector3(1500, 600, 1500)));
+	model_teapot->SetTexture(sphereTex);
+	SetTextureRepeating(sphereTex, true);
+	
+	root->AddChild(model_teapot);
+	//model:sphere end
+
+	//soldier begin
+	soldier_mesh = Mesh::LoadFromMeshFile("Role_T.msh");
+	soldier_anim = new  MeshAnimation("Role_T.anm");
+	soldier_material = new  MeshMaterial("Role_T.mat");
+	soldier_shader = new  Shader("SkinningVertex.glsl", "texturedFragment.glsl");
+	if (!soldier_shader->LoadSuccess()) {
+		return;
+	}
+	model_soldier = new SceneNode(soldier_mesh);
+	model_soldier->SetModelScale(Vector3(100, 100, 100));
+	model_soldier->SetTransform(Matrix4::Translation(Vector3(1500, 1000, 1500)));
+	model_soldier->SetTexture(earthTex);
+	root->AddChild(model_soldier);
+
+	for (int i = 0; i < soldier_mesh->GetSubMeshCount(); ++i) {
+		const  MeshMaterialEntry* matEntry = soldier_material->GetMaterialForLayer(i);
+
+		const  string* filename = nullptr;
+		matEntry->GetEntry("Diffuse", &filename);
+		string  path = TEXTUREDIR + *filename;
+		GLuint  texID = SOIL_load_OGL_texture(path.c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y);
+		soldier_matTextures.emplace_back(texID);
+	}
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	BindShader(soldier_shader);
+	glUniform1i(glGetUniformLocation(soldier_shader->GetProgram(), "diffuseTex"), 0);
+
+	UpdateShaderMatrices();
+
+	vector <Matrix4 > frameMatrices;
+
+	const  Matrix4* invBindPose = soldier_mesh->GetInverseBindPose();
+	const  Matrix4* frameData = soldier_anim->GetJointData(currentFrame);
+
+	for (unsigned int i = 0; i < soldier_mesh->GetJointCount(); ++i) {
+		frameMatrices.emplace_back(frameData[i] * invBindPose[i]);
+	}
+
+
+	int j = glGetUniformLocation(soldier_shader->GetProgram(), "joints");
+	glUniformMatrix4fv(j, frameMatrices.size(), false, (float*)frameMatrices.data());
+
+	for (int i = 0; i < soldier_mesh->GetSubMeshCount(); ++i) {
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, soldier_matTextures[i]);
+		soldier_mesh->DrawSubMesh(i);
+	}
+
+	//soldier end
 }
 void Renderer::loadshader() {
 
@@ -255,6 +321,9 @@ void Renderer::UpdateScene(float dt) {
 	while (frameTime < 0.0f) {
 		currentFrame = (currentFrame + 1) % model1anim->GetFrameCount();
 		frameTime += 1.0f / model1anim->GetFrameRate();
+		//
+		currentFrame = (currentFrame + 1) % soldier_anim->GetFrameCount();
+		frameTime += 1.0f / soldier_anim->GetFrameRate();
 	}
 
 }
@@ -339,7 +408,7 @@ void Renderer::DrawWater() {
 	Vector3 hSize = heightMap->GetHeightmapSize();
 	hSize = hSize * Vector3(1, 1, 1);//control water level by change the y values
 	//hSize = hSize - Vector3(0, 10, 0);//control water level by change the y values
-	modelMatrix = Matrix4::Translation(hSize * 0.5f) * Matrix4::Scale(hSize * 0.5f) * Matrix4::Rotation(90, Vector3(1, 0, 0));
+	modelMatrix = Matrix4::Translation(hSize * 0.5f) * Matrix4::Scale(hSize * 1.0f) * Matrix4::Rotation(90, Vector3(1, 0, 0));
 
 	textureMatrix = Matrix4::Translation(Vector3(waterCycle, 0.0f, waterCycle)) * Matrix4::Scale(Vector3(10, 10, 10)) * Matrix4::Rotation(waterRotate, Vector3(0, 0, 1));
 

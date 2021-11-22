@@ -4,6 +4,8 @@
 #include "Vector4.h"
 #include "Mesh.h"
 #include <vector>
+#include "MeshAnimation.h"
+#include "MeshMaterial.h"
 
 class SceneNode {
 public:
@@ -41,6 +43,14 @@ public:
 	void SetTexture(GLuint  tex) { texture = tex; }
 	GLuint GetTexture()  const { return  texture; }
 
+	//coursework soldire begin
+	vector<GLuint> GetTextures() const { return matTexture; }
+	void SetTextures(vector<GLuint> texs) { matTexture = texs; }
+
+	MeshAnimation GetAnimation() const { return anim; }
+	void SetAnimation(MeshAnimation anims) { anim = anims; }
+	//coursework soldire end
+
 	static  bool  CompareByCameraDistance(SceneNode* a, SceneNode* b) {
 		return (a->distanceFromCamera < b->distanceFromCamera) ? true : false;
 	}
@@ -62,4 +72,10 @@ protected:
 	float boundingRadius;
 	GLuint texture;
 	//tutorial 7 end
+
+	//coursework soldire begin
+	vector<GLuint> matTexture;
+	MeshAnimation anim;
+	//coursework soldire end
+
 };

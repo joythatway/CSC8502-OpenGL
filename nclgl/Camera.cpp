@@ -1,10 +1,12 @@
 #include "Camera.h"
 #include "Window.h"
 #include <algorithm>
+#include "../nclgl/HeightMap.h"
 
 float speed = 0;
 //int mode = 0;
 void Camera::UpdateCamera(float dt) {
+	
 	
 	Matrix4 auto_rotation = Matrix4::Rotation(yaw, Vector3(0, 1, 0));
 	Vector3 auto_forward = auto_rotation * Vector3(0, 0, -1);
@@ -23,7 +25,7 @@ void Camera::UpdateCamera(float dt) {
 		//autoCamera();//
 		speed = 200.0f * dt;
 		//firstposition = GetPosition();
-		position += auto_forward * speed;
+		position += auto_forward * speed;//here is  movement
 		//SetPosition(Vector3(100,50,100));
 		//position -= auto_right * speed;
 		
