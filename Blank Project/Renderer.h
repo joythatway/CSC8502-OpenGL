@@ -21,7 +21,9 @@ public:
 
 	void loadshader();
 	void loadtexture();
-	void loadpostprocessing();
+	//void loadpostprocessing();
+	void loadMutiLight();
+	void loadmodel();
 
 protected:
 	//cube Mapping
@@ -91,14 +93,34 @@ protected:
 
 
 	//tu 10 post processing
-	void PresentScene();
-	void DrawPostProcess();
-	void DrawScene();
+	
+	//void PresentScene();
+	//void DrawPostProcess();
+	//void DrawScene();
 
-	Shader* post_sceneShader;
-	Shader* post_processShader;
+	//Shader* post_sceneShader;
+	//Shader* post_processShader;
+	//GLuint bufferFBO;
+	//GLuint processFBO;
+	//GLuint bufferColourTex[2];
+	//GLuint bufferDepthTex;
+	
+	//tu 15 begin
+	void FillBuffers();
+	void DrawPointLights();
+	void CombineBuffers();
+	void GenerateScreenTexture(GLuint& into, bool depth = false);
+	//Shader* sceneShader;
+	Shader* pointlightShader;
+	Shader* combineShader;
 	GLuint bufferFBO;
-	GLuint processFBO;
-	GLuint bufferColourTex[2];
+	GLuint bufferColourTex;
+	GLuint bufferNormalTex;
 	GLuint bufferDepthTex;
+	GLuint pointLightFBO;
+	GLuint lightDiffuseTex;
+	GLuint lightSpecularTex;
+	Light* pointLights;
+	Mesh* sphere;
+	//tu 15 end
 };
