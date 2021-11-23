@@ -4,7 +4,7 @@ CubeRobot::CubeRobot(Mesh* cube) {
 
 	SceneNode* body = new SceneNode(cube, Vector4(1, 0, 0, 1));
 	body->SetModelScale(Vector3(10, 15, 5));//!!
-	body->SetTransform(Matrix4::Translation(Vector3(1000, 1000, 1000)));//!!position according the map
+	body->SetTransform(Matrix4::Translation(Vector3(3600, 600, 3800)));//!!position according the map
 	AddChild(body);
 
 	head = new SceneNode(cube, Vector4(0, 1, 0, 1));

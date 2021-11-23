@@ -132,15 +132,15 @@ Renderer::~Renderer(void)	{
 }
 void Renderer::loadmodel() {
 
-	sphereTex = SOIL_load_OGL_texture(TEXTUREDIR"tree.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+	sphereTex = SOIL_load_OGL_texture(TEXTUREDIR"tree1.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
 	if (!sphereTex)return;
 
 	model_teapot = new SceneNode();
-	sphere = Mesh::LoadFromMeshFile("tree.msh");
+	sphere = Mesh::LoadFromMeshFile("tree1.msh");
 	model_teapot->SetMesh(sphere);
 	model_teapot->SetColour(Vector4(0,0.6,0,1));
 	model_teapot->SetModelScale(Vector3(100, 100, 100));
-	model_teapot->SetTransform(Matrix4::Translation(Vector3(1500, 600, 1500)));
+	model_teapot->SetTransform(Matrix4::Translation(Vector3(4200, 500, 4000)));
 	model_teapot->SetTexture(sphereTex);
 	//SetTextureRepeating(sphereTex, true);
 	root->AddChild(model_teapot);
@@ -149,11 +149,11 @@ void Renderer::loadmodel() {
 
 	//teapot begin
 	mod_tea = new SceneNode();
-	tea = Mesh::LoadFromMeshFile("tree01.msh");
-	tea_mat = new MeshMaterial("tree01.mat");
+	tea = Mesh::LoadFromMeshFile("tree.msh");
+	//tea_mat = new MeshMaterial("tree01.mat");
 	mod_tea->SetMesh(tea);
 	mod_tea->SetModelScale(Vector3(100, 100, 100));
-	mod_tea->SetTransform(Matrix4::Translation(Vector3(1500, 1900, 1500)));
+	mod_tea->SetTransform(Matrix4::Translation(Vector3(3800, 800, 4500)));
 	mod_tea->SetTexture(sphereTex);
 	root->AddChild(mod_tea);
 	//teapot end
@@ -168,7 +168,7 @@ void Renderer::loadmodel() {
 	}
 	model_soldier = new SceneNode(soldier_mesh);
 	model_soldier->SetModelScale(Vector3(100, 100, 100));
-	model_soldier->SetTransform(Matrix4::Translation(Vector3(1500, 1000, 1500)));
+	model_soldier->SetTransform(Matrix4::Translation(Vector3(3900, 500, 4000)));
 	model_soldier->SetTexture(earthTex);
 	root->AddChild(model_soldier);
 
