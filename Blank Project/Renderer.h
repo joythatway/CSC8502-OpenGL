@@ -24,6 +24,7 @@ public:
 	//void loadpostprocessing();
 	void loadMutiLight();
 	void loadmodel();
+	void drawtree();
 
 protected:
 	//cube Mapping
@@ -48,6 +49,7 @@ protected:
 	GLuint earthBump;
 	GLuint waterBump;
 	GLuint sphereTex;
+	GLuint treeTex;
 
 	float waterRotate;
 	float waterCycle;
@@ -132,9 +134,15 @@ protected:
 
 	Mesh* soldier_mesh;
 	Shader* soldier_shader;
+	Shader* modelshader;
 	MeshAnimation* soldier_anim;
 	MeshMaterial* soldier_material;
 	vector<GLuint> soldier_matTextures;
 	SceneNode* model_soldier;
 
+	SceneNode* mod_tea;
+	Mesh* tea;
+	MeshMaterial* tea_mat;
+	Mesh* tree;
+	Shader* treeshader;
 };

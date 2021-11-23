@@ -26,7 +26,8 @@ int main()	{
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_2)) {
 			//
 		}if (Window::GetKeyboard()->KeyDown(KEYBOARD_3)) {
-			//
+			//mutip light
+			//renderer.loadMutiLight();
 		}if (Window::GetKeyboard()->KeyDown(KEYBOARD_4)) {
 			//
 		}if (Window::GetKeyboard()->KeyDown(KEYBOARD_5)) {

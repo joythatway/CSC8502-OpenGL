@@ -28,7 +28,8 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 
 	loadshader();
 	loadMutiLight();
-	
+	//draw tree begin
+	//draw tree end
 	model1mesh = Mesh::LoadFromMeshFile("Role_T.msh");
 	model1anim = new  MeshAnimation("Role_T.anm");
 	model1material = new  MeshMaterial("Role_T.mat");
@@ -53,7 +54,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 
 
 	//light = new Light(heightmapSize * Vector3(0.5f, 10.5f, 0.5f), Vector4(1, 1, 1, 1), 1.5f*heightmapSize.x);
-	light = new Light(heightmapSize * Vector3(0.5f, 3.5f, 0.5f), Vector4(1, 1, 1, 1), 1.5f*heightmapSize.x);//1.5f->1.0f
+	light = new Light(heightmapSize * Vector3(0.5f, 20.0f, 0.5f), Vector4(1, 1, 1, 1), 2.5f*heightmapSize.x);//1.5f->1.0f
 	projMatrix = Matrix4::Perspective(1.0f, 15000.0f, (float)width / (float)height, 45.0f);
 
 
@@ -131,21 +132,31 @@ Renderer::~Renderer(void)	{
 }
 void Renderer::loadmodel() {
 
-	//model:sphere begin
-	//model_teapot = new SceneNode(sphere,Vector4(0,0,1,1));
-	
-	//model_teapot_texture = SOIL_load_OGL_texture(TEXTUREDIR"terrain02.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
-		
 	sphereTex = SOIL_load_OGL_texture(TEXTUREDIR"tree.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
 	if (!sphereTex)return;
-	model_teapot = new SceneNode(sphere,Vector4(1,1,1,1));
+
+	model_teapot = new SceneNode();
+	sphere = Mesh::LoadFromMeshFile("tree.msh");
+	model_teapot->SetMesh(sphere);
+	model_teapot->SetColour(Vector4(0,0.6,0,1));
 	model_teapot->SetModelScale(Vector3(100, 100, 100));
 	model_teapot->SetTransform(Matrix4::Translation(Vector3(1500, 600, 1500)));
 	model_teapot->SetTexture(sphereTex);
-	SetTextureRepeating(sphereTex, true);
-	
+	//SetTextureRepeating(sphereTex, true);
 	root->AddChild(model_teapot);
 	//model:sphere end
+
+
+	//teapot begin
+	mod_tea = new SceneNode();
+	tea = Mesh::LoadFromMeshFile("tree01.msh");
+	tea_mat = new MeshMaterial("tree01.mat");
+	mod_tea->SetMesh(tea);
+	mod_tea->SetModelScale(Vector3(100, 100, 100));
+	mod_tea->SetTransform(Matrix4::Translation(Vector3(1500, 1900, 1500)));
+	mod_tea->SetTexture(sphereTex);
+	root->AddChild(mod_tea);
+	//teapot end
 
 	//soldier begin
 	soldier_mesh = Mesh::LoadFromMeshFile("Role_T.msh");
@@ -205,6 +216,8 @@ void Renderer::loadshader() {
 	lightShader = new Shader("bumpvertex.glsl", "bumpfragment.glsl");
 	model1shader = new  Shader("SkinningVertex.glsl", "TexturedFragment.glsl");
 	shaderforcube = new  Shader("SceneVertex.glsl", "SceneFragment.glsl");//tu6
+	modelshader = new Shader("modelshaderVertex.glsl", "modelshaderFrag.glsl");
+	treeshader = new Shader("PerPixelVertex.glsl", "PerPixelFragment.glsl");
 	//post_sceneShader = new Shader("TexturedVertex.glsl", "TexturedFragment.glsl");//tu 10
 	//post_processShader = new Shader("TexturedVertex.glsl", "processfrag.glsl");//tu 10
 	//if (!post_sceneShader) {
@@ -213,21 +226,12 @@ void Renderer::loadshader() {
 	//if (!post_processShader) {
 	//	return;
 	//}
-	if (!shaderforcube) {
-		return;
-	}
-	if (!reflectShader->LoadSuccess()) {
-		return;
-	}
-	if (!skyboxShader->LoadSuccess()) {
-		return;
-	}
-	if (!lightShader->LoadSuccess()) {
-		return;
-	}
-	if (!model1shader->LoadSuccess()) {
-		return;
-	}
+	if (!modelshader) { return; }
+	if (!shaderforcube) {return;}
+	if (!reflectShader->LoadSuccess()) {return;}
+	if (!skyboxShader->LoadSuccess()) {return;}
+	if (!lightShader->LoadSuccess()) {return;}
+	if (!model1shader->LoadSuccess()) {return;}
 }
 
 void Renderer::loadtexture() {
@@ -334,6 +338,7 @@ void Renderer::RenderScene() {
 	DrawHeightmap();
 	DrawWater();
 	DrawModel1();
+	//drawtree();
 	//FillBuffers();
 	DrawPointLights();
 	//CombineBuffers();
@@ -348,6 +353,7 @@ void Renderer::RenderScene() {
 	UpdateShaderMatrices();
 	glUniform1i(glGetUniformLocation(shaderforcube->GetProgram(), "diffuseTex"), 1);
 	DrawNode(root);
+	//DrawNode(model_soldier);
 	//tu6 end
 
 	//DrawShadowScene();
@@ -408,7 +414,7 @@ void Renderer::DrawWater() {
 	Vector3 hSize = heightMap->GetHeightmapSize();
 	hSize = hSize * Vector3(1, 1, 1);//control water level by change the y values
 	//hSize = hSize - Vector3(0, 10, 0);//control water level by change the y values
-	modelMatrix = Matrix4::Translation(hSize * 0.5f) * Matrix4::Scale(hSize * 1.0f) * Matrix4::Rotation(90, Vector3(1, 0, 0));
+	modelMatrix = Matrix4::Translation(hSize * 0.5f) * Matrix4::Scale(hSize * 0.5f) * Matrix4::Rotation(90, Vector3(1, 0, 0));
 
 	textureMatrix = Matrix4::Translation(Vector3(waterCycle, 0.0f, waterCycle)) * Matrix4::Scale(Vector3(10, 10, 10)) * Matrix4::Rotation(waterRotate, Vector3(0, 0, 1));
 
@@ -504,15 +510,22 @@ void Renderer::DrawModel1() {
 
 void   Renderer::DrawNode(SceneNode* n) {
 	if (n->GetMesh()) {
+		BindShader(shaderforcube);
+		glUniform1i(glGetUniformLocation(shaderforcube->GetProgram(), "diffuseTex"), 0);
+
 		Matrix4  model = n->GetWorldTransform() *
 			Matrix4::Scale(n->GetModelScale());
 
 		glUniformMatrix4fv(glGetUniformLocation(shaderforcube->GetProgram(), "modelMatrix"), 1, false, model.values);
-
 		glUniform4fv(glGetUniformLocation(shaderforcube->GetProgram(), "nodeColour"), 1, (float*)& n->GetColour());
+		//glUniform1i(glGetUniformLocation(shaderforcube->GetProgram(),"useTexture"),1)); 
+		glUniform1i(glGetUniformLocation(shaderforcube->GetProgram(), "useTexture"), 1);
 
-		//glUniform1i(glGetUniformLocation(shader->GetProgram(),"useTexture"),0)); 
-		glUniform1i(glGetUniformLocation(shaderforcube->GetProgram(), "useTexture"), 0);
+		//begin
+		//glUniform1i(glGetUniformLocation(shaderforcube->GetProgram(), "diffuseTex"), 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, sphereTex);
+		//end
 
 		n->Draw(*this);
 	}
@@ -750,3 +763,21 @@ void Renderer::CombineBuffers() {
 }
 
 //Deferred Rendering end
+
+void Renderer::drawtree() {
+	tree = Mesh::LoadFromMeshFile("tree.msh");
+	treeTex = SOIL_load_OGL_texture(TEXTUREDIR"tree.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+	if (!treeTex)return;
+	BindShader(model1shader);
+	glUniform1i(glGetUniformLocation(model1shader->GetProgram(), "diffuseTex"), 1);
+
+	Vector3 hSize = heightMap->GetHeightmapSize();
+	hSize = hSize * Vector3(1, 1, 1);//control water level by change the y values
+	//hSize = hSize - Vector3(0, 10, 0);//control water level by change the y values
+	modelMatrix = Matrix4::Translation(hSize * 0.5f) * Matrix4::Scale(hSize * 0.5f) * Matrix4::Rotation(90, Vector3(1, 0, 0));
+
+	textureMatrix = Matrix4::Translation(Vector3(waterCycle, 0.0f, waterCycle)) * Matrix4::Scale(Vector3(10, 10, 10)) * Matrix4::Rotation(waterRotate, Vector3(0, 0, 1));
+
+	UpdateShaderMatrices();
+	tree->Draw();
+}
