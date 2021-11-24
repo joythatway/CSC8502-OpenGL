@@ -25,6 +25,7 @@ public:
 	void loadMutiLight();
 	void loadmodel();
 	void drawtree();
+	bool changecamera = false;
 
 protected:
 	//cube Mapping
@@ -43,6 +44,10 @@ protected:
 
 	Light* light;
 	Camera* camera;
+	Camera* camera01;
+	Camera* camera02;
+	Camera* camera03;
+
 	GLuint cubeMap;
 	GLuint waterTex;
 	GLuint earthTex;

@@ -49,6 +49,9 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 
 	//camera = new Camera(-45.0f, 0.0f, heightmapSize * Vector3(0.5f, 5.0f, 0.5f));
 	camera = new Camera(-15.0f, -135.0f, heightmapSize * Vector3(0.0f, 5.0f, 0.0f));
+	camera01 = new Camera(-15.0f, 135.0f, heightmapSize * Vector3(1.0f, 6.0f, 0.0f));
+	camera02 = new Camera(-15.0f, -45.0f, heightmapSize * Vector3(0.0f, 7.0f, 1.0f));
+	camera03 = new Camera(-15.0f, 45.0f, heightmapSize * Vector3(1.0f, 8.0f, 1.0f));
 
 
 
@@ -78,6 +81,10 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 }
 Renderer::~Renderer(void)	{
 	delete camera;
+	delete camera01;
+	delete camera02;
+	delete camera03;
+
 	delete heightMap;
 	delete quad;
 	delete reflectShader;
@@ -318,6 +325,10 @@ void Renderer::loadpostprocessing() {
 }*/
 void Renderer::UpdateScene(float dt) {
 	camera->UpdateCamera(dt);
+	camera01->UpdateCamera(dt);
+	camera02->UpdateCamera(dt);
+	camera03->UpdateCamera(dt);
+
 	light->Update(dt);
 	viewMatrix = camera->BuildViewMatrix();
 	waterRotate += dt * 2.0f;
@@ -341,31 +352,143 @@ void Renderer::UpdateScene(float dt) {
 }
 
 void Renderer::RenderScene() {
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-	DrawSkybox();
-	DrawHeightmap();
-	DrawWater();
-	DrawModel1();
-	//drawtree();
-	//FillBuffers();
-	DrawPointLights();
-	//CombineBuffers();
-
-	if (Window::GetKeyboard()->KeyDown(KEYBOARD_3)) {
+	if (!changecamera) {
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+		glViewport(0, 0, width, height);
+		viewMatrix = camera->BuildViewMatrix();
+		DrawSkybox();
+		DrawHeightmap();
+		DrawWater();
+		DrawModel1();
+		//drawtree();
+		//FillBuffers();
+		DrawPointLights();
+		//CombineBuffers();
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_3)) {
 		//DrawScene();
 		//DrawPostProcess();
 		//PresentScene();
+		}
+		//tu6 begin
+		BindShader(shaderforcube);
+		UpdateShaderMatrices();
+		glUniform1i(glGetUniformLocation(shaderforcube->GetProgram(), "diffuseTex"), 1);
+		DrawNode(root);
+		//DrawNode(model_soldier);
+		//tu6 end
+		//DrawShadowScene();
+		//DrawMainScene();
 	}
-	//tu6 begin
-	BindShader(shaderforcube);
-	UpdateShaderMatrices();
-	glUniform1i(glGetUniformLocation(shaderforcube->GetProgram(), "diffuseTex"), 1);
-	DrawNode(root);
-	//DrawNode(model_soldier);
-	//tu6 end
+	
 
-	//DrawShadowScene();
-	//DrawMainScene();
+	if (changecamera) {
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+		//view position 1------------------------------------------------------------------------
+		glViewport(width / 2, 0, width / 2, height / 2);
+		viewMatrix = camera->BuildViewMatrix();
+		DrawSkybox();
+		DrawHeightmap();
+		DrawWater();
+		DrawModel1();
+		//drawtree();
+		//FillBuffers();
+		DrawPointLights();
+		//CombineBuffers();
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_3)) {
+			//DrawScene();
+			//DrawPostProcess();
+			//PresentScene();
+		}
+		//tu6 begin
+		BindShader(shaderforcube);
+		UpdateShaderMatrices();
+		glUniform1i(glGetUniformLocation(shaderforcube->GetProgram(), "diffuseTex"), 1);
+		DrawNode(root);
+		//DrawNode(model_soldier);
+		//tu6 end
+		//DrawShadowScene();
+		//DrawMainScene();
+
+		//view position 2------------------------------------------------------------------------
+		glViewport(0, 0, width / 2, height / 2);
+		viewMatrix = camera01->BuildViewMatrix();
+		DrawSkybox();
+		DrawHeightmap();
+		DrawWater();
+		DrawModel1();
+		//drawtree();
+		//FillBuffers();
+		DrawPointLights();
+		//CombineBuffers();
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_3)) {
+			//DrawScene();
+			//DrawPostProcess();
+			//PresentScene();
+		}
+		//tu6 begin
+		BindShader(shaderforcube);
+		UpdateShaderMatrices();
+		glUniform1i(glGetUniformLocation(shaderforcube->GetProgram(), "diffuseTex"), 1);
+		DrawNode(root);
+		//DrawNode(model_soldier);
+		//tu6 end
+		//DrawShadowScene();
+		//DrawMainScene();
+
+		//view position 3------------------------------------------------------------------------
+		glViewport(0, height/2, width / 2, height / 2);
+		viewMatrix = camera02->BuildViewMatrix();
+		DrawSkybox();
+		DrawHeightmap();
+		DrawWater();
+		DrawModel1();
+		//drawtree();
+		//FillBuffers();
+		DrawPointLights();
+		//CombineBuffers();
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_3)) {
+			//DrawScene();
+			//DrawPostProcess();
+			//PresentScene();
+		}
+		//tu6 begin
+		BindShader(shaderforcube);
+		UpdateShaderMatrices();
+		glUniform1i(glGetUniformLocation(shaderforcube->GetProgram(), "diffuseTex"), 1);
+		DrawNode(root);
+		//DrawNode(model_soldier);
+		//tu6 end
+		//DrawShadowScene();
+		//DrawMainScene();
+
+		//view position 4------------------------------------------------------------------------
+		glViewport(width / 2, height/2, width / 2, height / 2);
+		viewMatrix = camera03->BuildViewMatrix();
+		DrawSkybox();
+		DrawHeightmap();
+		DrawWater();
+		DrawModel1();
+		//drawtree();
+		//FillBuffers();
+		DrawPointLights();
+		//CombineBuffers();
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_3)) {
+			//DrawScene();
+			//DrawPostProcess();
+			//PresentScene();
+		}
+		//tu6 begin
+		BindShader(shaderforcube);
+		UpdateShaderMatrices();
+		glUniform1i(glGetUniformLocation(shaderforcube->GetProgram(), "diffuseTex"), 1);
+		DrawNode(root);
+		//DrawNode(model_soldier);
+		//tu6 end
+		//DrawShadowScene();
+		//DrawMainScene();
+	}
+
+
 }
 
 void Renderer::DrawSkybox() {

@@ -30,8 +30,10 @@ int main()	{
 			//renderer.loadMutiLight();
 		}if (Window::GetKeyboard()->KeyDown(KEYBOARD_4)) {
 			//
+			renderer.changecamera = true;
 		}if (Window::GetKeyboard()->KeyDown(KEYBOARD_5)) {
 			//
+			renderer.changecamera = false;
 		}
 	}
 	return 0;
