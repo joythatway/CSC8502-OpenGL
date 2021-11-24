@@ -145,4 +145,7 @@ protected:
 	MeshMaterial* tea_mat;
 	Mesh* tree;
 	Shader* treeshader;
+
+	SceneNode* mod_tree;
+
 };

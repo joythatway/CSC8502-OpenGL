@@ -146,6 +146,14 @@ void Renderer::loadmodel() {
 	root->AddChild(model_teapot);
 	//model:sphere end
 
+	mod_tree = new SceneNode();
+	tea = Mesh::LoadFromMeshFile("tree1.msh");
+	//tea_mat = new MeshMaterial("tree01.mat");
+	mod_tree->SetMesh(tea);
+	mod_tree->SetModelScale(Vector3(100, 100, 100));
+	mod_tree->SetTransform(Matrix4::Translation(Vector3(3600, 800, 4500)));
+	mod_tree->SetTexture(sphereTex);
+	root->AddChild(mod_tree);
 
 	//teapot begin
 	mod_tea = new SceneNode();
