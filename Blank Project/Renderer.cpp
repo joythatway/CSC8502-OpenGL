@@ -251,20 +251,30 @@ void Renderer::loadshader() {
 
 void Renderer::loadtexture() {
 
-	heightMap = new HeightMap(TEXTUREDIR"noise3pppp.png");
+	//heightMap = new HeightMap(TEXTUREDIR"noise3pppp.png");
+	heightMap = new HeightMap(TEXTUREDIR"terrain001.png");
+	earthTex = SOIL_load_OGL_texture(TEXTUREDIR"terrainTex001.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+	earthBump = SOIL_load_OGL_texture(TEXTUREDIR"terrainbump002.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+
 	waterTex = SOIL_load_OGL_texture(TEXTUREDIR"water.TGA", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
-	earthTex = SOIL_load_OGL_texture(TEXTUREDIR"terrain02.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
-	earthBump = SOIL_load_OGL_texture(TEXTUREDIR"Barren RedsDOT3.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+	//earthTex = SOIL_load_OGL_texture(TEXTUREDIR"terrain02.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+	//earthBump = SOIL_load_OGL_texture(TEXTUREDIR"Barren RedsDOT3.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
 	waterBump = SOIL_load_OGL_texture(TEXTUREDIR"waterbump.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
 	/*
 	cubeMap = SOIL_load_OGL_cubemap(TEXTUREDIR"rusted_west.jpg", TEXTUREDIR"rusted_east.jpg",
 		TEXTUREDIR"rusted_up.jpg", TEXTUREDIR"rusted_down.jpg",
 		TEXTUREDIR"rusted_south.jpg", TEXTUREDIR"rusted_north.jpg", SOIL_LOAD_RGB, SOIL_CREATE_NEW_ID, 0);
 	*/
+	//
+	cubeMap = SOIL_load_OGL_cubemap(TEXTUREDIR"right.jpg", TEXTUREDIR"left.jpg",
+		TEXTUREDIR"top.jpg", TEXTUREDIR"bottom.jpg",
+		TEXTUREDIR"front.jpg", TEXTUREDIR"back.jpg", SOIL_LOAD_RGB, SOIL_CREATE_NEW_ID, 0);
+	//
+	/*
 	cubeMap = SOIL_load_OGL_cubemap(TEXTUREDIR"sright.jpg", TEXTUREDIR"sleft.jpg",
 		TEXTUREDIR"stop.jpg", TEXTUREDIR"sbottom.jpg",
 		TEXTUREDIR"sfront.jpg", TEXTUREDIR"sback.jpg", SOIL_LOAD_RGB, SOIL_CREATE_NEW_ID, 0);
-
+	*/
 	if (!earthTex) {
 		return;
 	}
@@ -545,7 +555,7 @@ void Renderer::DrawWater() {
 	Vector3 hSize = heightMap->GetHeightmapSize();
 	hSize = hSize * Vector3(1, 1, 1);//control water level by change the y values
 	//hSize = hSize - Vector3(0, 10, 0);//control water level by change the y values
-	modelMatrix = Matrix4::Translation(hSize * 0.5f) * Matrix4::Scale(hSize * 0.5f) * Matrix4::Rotation(90, Vector3(1, 0, 0));
+	modelMatrix = Matrix4::Translation(Vector3(hSize.x*0.5f,hSize.y*0.7f,hSize.z*0.5f)) * Matrix4::Scale(hSize * 0.5f) * Matrix4::Rotation(90, Vector3(1, 0, 0));
 
 	textureMatrix = Matrix4::Translation(Vector3(waterCycle, 0.0f, waterCycle)) * Matrix4::Scale(Vector3(10, 10, 10)) * Matrix4::Rotation(waterRotate, Vector3(0, 0, 1));
 
