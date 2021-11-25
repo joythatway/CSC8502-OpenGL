@@ -1,5 +1,6 @@
 #version 330 core
 
+uniform float time;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projMatrix;
@@ -24,6 +25,7 @@ void main(void){
 
 	vec4 worldPos=(modelMatrix*vec4(position,1));
 
+	worldPos.y+=sin(time)*10+20;
 	OUT.worldPos=worldPos.xyz;
 
 	gl_Position=(projMatrix*viewMatrix)*worldPos;

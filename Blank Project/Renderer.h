@@ -25,6 +25,7 @@ public:
 	void loadMutiLight();
 	void loadmodel();
 	void drawtree();
+	void updatetree(float dt);
 	bool changecamera = false;
 
 protected:
@@ -152,5 +153,13 @@ protected:
 	Shader* treeshader;
 
 	SceneNode* mod_tree;
+	Mesh* tree1;
+	SceneNode* mod_tree2;
+	SceneNode* mod_tree3;
+	SceneNode* mod_tree4;
+	SceneNode* mod_tree5;
+
+	float wavetime;
+	float wavespeed;
 
 };

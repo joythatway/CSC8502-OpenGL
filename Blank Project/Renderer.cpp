@@ -13,13 +13,17 @@
 #define SHADOWSIZE 2048
 const int LIGHT_NUM = 32;
 //const int POST_PASSES = 10;//post processing
-
+float treetime = 0;
+int treesecond = 0;
 Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 
 	cube = Mesh::LoadFromMeshFile("OffsetCubeY.msh");//tu6
 	cube2 = Mesh::LoadFromMeshFile("OffsetCubeY.msh");
 	teapot = Mesh::LoadFromMeshFile("Teapot001.msh");
-	sphere = Mesh::LoadFromMeshFile("tree.msh");
+	sphere = Mesh::LoadFromMeshFile("Sphere.msh");
+
+	wavespeed = 0.005;
+	wavetime = 0;
 
 	quad = Mesh::GenertateQuad();
 	post_quad = Mesh::GenertateQuad();
@@ -143,11 +147,11 @@ void Renderer::loadmodel() {
 	if (!sphereTex)return;
 
 	model_teapot = new SceneNode();
-	sphere = Mesh::LoadFromMeshFile("tree1.msh");
-	model_teapot->SetMesh(sphere);
+	tree1 = Mesh::LoadFromMeshFile("tree1.msh");
+	model_teapot->SetMesh(tree1);
 	model_teapot->SetColour(Vector4(0,0.6,0,1));
 	model_teapot->SetModelScale(Vector3(100, 100, 100));
-	model_teapot->SetTransform(Matrix4::Translation(Vector3(4200, 500, 4000)));
+	model_teapot->SetTransform(Matrix4::Translation(Vector3(4200, 250, 3600)));
 	model_teapot->SetTexture(sphereTex);
 	//SetTextureRepeating(sphereTex, true);
 	root->AddChild(model_teapot);
@@ -158,17 +162,60 @@ void Renderer::loadmodel() {
 	//tea_mat = new MeshMaterial("tree01.mat");
 	mod_tree->SetMesh(tea);
 	mod_tree->SetModelScale(Vector3(100, 100, 100));
-	mod_tree->SetTransform(Matrix4::Translation(Vector3(3600, 800, 4500)));
+	mod_tree->SetTransform(Matrix4::Translation(Vector3(3650, 250, 4900)));
+	mod_tree->SetTransform(mod_tree->GetTransform() * Matrix4::Rotation(-8.0f * 1, Vector3(1, 0, 0)));
 	mod_tree->SetTexture(sphereTex);
 	root->AddChild(mod_tree);
 
+	mod_tree2 = new SceneNode();
+	tea = Mesh::LoadFromMeshFile("tree1.msh");
+	//tea_mat = new MeshMaterial("tree01.mat");
+	mod_tree2->SetMesh(tea);
+	mod_tree2->SetModelScale(Vector3(100, 100, 100));
+	mod_tree2->SetTransform(Matrix4::Translation(Vector3(5250, 250, 2400)));
+	mod_tree2->SetTransform(mod_tree2->GetTransform()*Matrix4::Rotation(-8.0f*1,Vector3(1,0,0)));
+	mod_tree2->SetTexture(sphereTex);
+	root->AddChild(mod_tree2);
+
+	mod_tree3 = new SceneNode();
+	tea = Mesh::LoadFromMeshFile("tree1.msh");
+	//tea_mat = new MeshMaterial("tree01.mat");
+	mod_tree3->SetMesh(tea);
+	mod_tree3->SetModelScale(Vector3(100, 100, 100));
+	mod_tree3->SetTransform(Matrix4::Translation(Vector3(5450, 250, 4300)));
+	mod_tree3->SetTransform(mod_tree3->GetTransform() * Matrix4::Rotation(-8.0f * 1, Vector3(1, 0, 0)));
+	mod_tree3->SetTexture(sphereTex);
+	root->AddChild(mod_tree3);
+
+	mod_tree4 = new SceneNode();
+	tea = Mesh::LoadFromMeshFile("tree1.msh");
+	//tea_mat = new MeshMaterial("tree01.mat");
+	mod_tree4->SetMesh(tea);
+	mod_tree4->SetModelScale(Vector3(100, 100, 100));
+	mod_tree4->SetTransform(Matrix4::Translation(Vector3(3550, 250, 3200)));
+	mod_tree4->SetTransform(mod_tree4->GetTransform() * Matrix4::Rotation(-8.0f * 1, Vector3(1, 0, 0)));
+	mod_tree4->SetTexture(sphereTex);
+	root->AddChild(mod_tree4);
+
+	mod_tree5 = new SceneNode();
+	tea = Mesh::LoadFromMeshFile("tree1.msh");
+	//tea_mat = new MeshMaterial("tree01.mat");
+	mod_tree5->SetMesh(tea);
+	mod_tree5->SetModelScale(Vector3(100, 100, 100));
+	mod_tree5->SetTransform(Matrix4::Translation(Vector3(4050, 250, 2600)));
+	mod_tree5->SetTransform(mod_tree5->GetTransform() * Matrix4::Rotation(-8.0f * 1, Vector3(1, 0, 0)));
+	mod_tree5->SetTexture(sphereTex);
+	root->AddChild(mod_tree5);
+
+
 	//teapot begin
 	mod_tea = new SceneNode();
-	tea = Mesh::LoadFromMeshFile("tree.msh");
+	tea = Mesh::LoadFromMeshFile("tree1.msh");
 	//tea_mat = new MeshMaterial("tree01.mat");
 	mod_tea->SetMesh(tea);
 	mod_tea->SetModelScale(Vector3(100, 100, 100));
-	mod_tea->SetTransform(Matrix4::Translation(Vector3(3800, 800, 4500)));
+	mod_tea->SetTransform(Matrix4::Translation(Vector3(3850, 250, 4500)));
+	mod_tea->SetTransform(mod_tea->GetTransform() * Matrix4::Rotation(-8.0f * 1, Vector3(1, 0, 0)));
 	mod_tea->SetTexture(sphereTex);
 	root->AddChild(mod_tea);
 	//teapot end
@@ -183,7 +230,7 @@ void Renderer::loadmodel() {
 	}
 	model_soldier = new SceneNode(soldier_mesh);
 	model_soldier->SetModelScale(Vector3(100, 100, 100));
-	model_soldier->SetTransform(Matrix4::Translation(Vector3(3900, 500, 4000)));
+	model_soldier->SetTransform(Matrix4::Translation(Vector3(3900, 300, 4000)));
 	model_soldier->SetTexture(earthTex);
 	root->AddChild(model_soldier);
 
@@ -338,7 +385,7 @@ void Renderer::UpdateScene(float dt) {
 	camera01->UpdateCamera(dt);
 	camera02->UpdateCamera(dt);
 	camera03->UpdateCamera(dt);
-
+	updatetree(dt);
 	light->Update(dt);
 	viewMatrix = camera->BuildViewMatrix();
 	waterRotate += dt * 2.0f;
@@ -371,14 +418,18 @@ void Renderer::RenderScene() {
 		DrawWater();
 		DrawModel1();
 		//drawtree();
+		//deferred rendering===========================================================================================
 		//FillBuffers();
-		DrawPointLights();
+		//DrawPointLights();
 		//CombineBuffers();
+		//deferred rendering===========================================================================================
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_3)) {
 		//DrawScene();
 		//DrawPostProcess();
 		//PresentScene();
 		}
+		projMatrix = Matrix4::Perspective(1.0f, 15000.0f, (float)width / (float)height, 45.0f);
+		viewMatrix = camera->BuildViewMatrix();
 		//tu6 begin
 		BindShader(shaderforcube);
 		UpdateShaderMatrices();
@@ -409,6 +460,8 @@ void Renderer::RenderScene() {
 			//DrawPostProcess();
 			//PresentScene();
 		}
+		//projMatrix = Matrix4::Perspective(1.0f, 15000.0f, (float)width / (float)height, 45.0f);
+		
 		//tu6 begin
 		BindShader(shaderforcube);
 		UpdateShaderMatrices();
@@ -435,6 +488,7 @@ void Renderer::RenderScene() {
 			//DrawPostProcess();
 			//PresentScene();
 		}
+		
 		//tu6 begin
 		BindShader(shaderforcube);
 		UpdateShaderMatrices();
@@ -551,6 +605,9 @@ void Renderer::DrawWater() {
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap);//
 	
+	//make water has wave 
+	glUniform1f(glGetUniformLocation(reflectShader->GetProgram(), "time"), wavetime);
+	//make water has wave 
 
 	Vector3 hSize = heightMap->GetHeightmapSize();
 	hSize = hSize * Vector3(1, 1, 1);//control water level by change the y values
@@ -625,7 +682,7 @@ void Renderer::DrawModel1() {
 	//glUniform3fv(glGetUniformLocation(model1shader->GetProgram(), "position"), Vector3(100, 100, 100));
 	Vector3 hSize = heightMap->GetHeightmapSize();//change the soldiers
 	hSize = hSize * Vector3(1, 26, 1);// control water level by change the y values
-	modelMatrix = Matrix4::Translation((hSize * 0.5f)-Vector3(-300,3050,-300)) * Matrix4::Scale(hSize * 0.06f) * Matrix4::Rotation(0, Vector3(1, 0, 0));//change!!!
+	modelMatrix = Matrix4::Translation((hSize * 0.5f)-Vector3(-300,3100,-300)) * Matrix4::Scale(hSize * 0.06f) * Matrix4::Rotation(45, Vector3(0, 1, 0));//change!!!
 
 	UpdateShaderMatrices();
 
@@ -753,7 +810,7 @@ void Renderer::loadMutiLight() {
 			0.5f + (float)(rand() / (float)RAND_MAX),
 			1));
 
-		l.SetRadius(250.0f + (rand() % 250));
+		l.SetRadius(650.0f + (rand() % 250));
 	}
 
 	sceneShader = new Shader("BumpVertex.glsl", "bufferFragment.glsl");
@@ -873,7 +930,6 @@ void Renderer::DrawPointLights() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glCullFace(GL_BACK);
 	glDepthFunc(GL_LEQUAL);
-
 	glDepthMask(GL_TRUE);
 	glClearColor(0.2f, 0.2f, 0.2f, 1);
 
@@ -921,4 +977,25 @@ void Renderer::drawtree() {
 
 	UpdateShaderMatrices();
 	tree->Draw();
+}
+void Renderer::updatetree(float dt) {
+	treetime += dt;
+	treesecond = treetime / 2;
+	if (treesecond%2) {
+		mod_tree2->SetTransform(mod_tree2->GetTransform() * Matrix4::Rotation(2.5f * dt, Vector3(1, 0, 1)));
+		mod_tree3->SetTransform(mod_tree3->GetTransform() * Matrix4::Rotation(2.5f * dt, Vector3(1, 0, 1)));
+		mod_tree4->SetTransform(mod_tree4->GetTransform() * Matrix4::Rotation(2.5f * dt, Vector3(1, 0, 1)));
+		mod_tree5->SetTransform(mod_tree5->GetTransform() * Matrix4::Rotation(2.5f * dt, Vector3(1, 0, 0)));
+		mod_tea->SetTransform(mod_tea->GetTransform() * Matrix4::Rotation(2.5f * dt, Vector3(1, 0, 0)));
+		mod_tree->SetTransform(mod_tree->GetTransform() * Matrix4::Rotation(2.5f * dt, Vector3(1, 0, 1)));
+	}
+	else {
+		mod_tree2->SetTransform(mod_tree2->GetTransform() * Matrix4::Rotation(-2.5f * dt, Vector3(1, 0, 1)));
+		mod_tree3->SetTransform(mod_tree3->GetTransform() * Matrix4::Rotation(-2.5f * dt, Vector3(1, 0, 1)));
+		mod_tree4->SetTransform(mod_tree4->GetTransform() * Matrix4::Rotation(-2.5f * dt, Vector3(1, 0, 1)));
+		mod_tree5->SetTransform(mod_tree5->GetTransform() * Matrix4::Rotation(-2.5f * dt, Vector3(1, 0, 0)));
+		mod_tea->SetTransform(mod_tea->GetTransform() * Matrix4::Rotation(-2.5f * dt, Vector3(1, 0, 0)));
+		mod_tree->SetTransform(mod_tree->GetTransform() * Matrix4::Rotation(-2.5f * dt, Vector3(1, 0, 1)));
+	}
+	
 }

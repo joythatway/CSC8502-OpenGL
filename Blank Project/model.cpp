@@ -5,7 +5,7 @@ model::model(Mesh* mod) {
 
 	SceneNode* body = new SceneNode(mod, Vector4(1, 0, 0, 1));
 	body->SetModelScale(Vector3(100, 100, 100));
-	body->SetTransform(Matrix4::Translation(Vector3(1000, 500, 1000)));//!!position according the map
+	body->SetTransform(Matrix4::Translation(Vector3(100, 500, 100)));//!!position according the map
 	AddChild(body);
 
 	
