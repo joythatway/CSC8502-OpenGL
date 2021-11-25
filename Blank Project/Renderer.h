@@ -27,6 +27,7 @@ public:
 	void drawtree();
 	void updatetree(float dt);
 	bool changecamera = false;
+	bool deferredrendering = true;
 
 protected:
 	//cube Mapping

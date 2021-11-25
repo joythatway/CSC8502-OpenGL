@@ -25,15 +25,14 @@ int main()	{
 		}
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_2)) {
 			//
-		}if (Window::GetKeyboard()->KeyDown(KEYBOARD_3)) {
+		}if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_3)) {
 			//mutip light
-			//renderer.loadMutiLight();
-		}if (Window::GetKeyboard()->KeyDown(KEYBOARD_4)) {
+			renderer.deferredrendering = !renderer.deferredrendering;
+		}if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_4)) {
 			//
-			renderer.changecamera = true;
+			renderer.changecamera = !renderer.changecamera;
 		}if (Window::GetKeyboard()->KeyDown(KEYBOARD_5)) {
 			//
-			renderer.changecamera = false;
 		}
 	}
 	return 0;

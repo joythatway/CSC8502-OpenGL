@@ -410,6 +410,69 @@ void Renderer::UpdateScene(float dt) {
 
 void Renderer::RenderScene() {
 	if (!changecamera) {
+		if (deferredrendering) {
+			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+			glViewport(0, 0, width, height);
+			viewMatrix = camera->BuildViewMatrix();
+			DrawSkybox();
+			DrawHeightmap();
+			DrawWater();
+			DrawModel1();
+			//drawtree();
+			//deferred rendering===========================================================================================
+			//FillBuffers();
+			//DrawPointLights();
+			//CombineBuffers();
+			//deferred rendering===========================================================================================
+			if (Window::GetKeyboard()->KeyDown(KEYBOARD_3)) {
+				//DrawScene();
+				//DrawPostProcess();
+				//PresentScene();
+			}
+			projMatrix = Matrix4::Perspective(1.0f, 15000.0f, (float)width / (float)height, 45.0f);
+			viewMatrix = camera->BuildViewMatrix();
+			//tu6 begin
+			BindShader(shaderforcube);
+			UpdateShaderMatrices();
+			glUniform1i(glGetUniformLocation(shaderforcube->GetProgram(), "diffuseTex"), 1);
+			DrawNode(root);
+			//DrawNode(model_soldier);
+			//tu6 end
+			//DrawShadowScene();
+			//DrawMainScene();
+		}
+		if (!deferredrendering) {
+			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+			glViewport(0, 0, width, height);
+			viewMatrix = camera->BuildViewMatrix();
+			DrawSkybox();
+			DrawHeightmap();
+			DrawWater();
+			DrawModel1();
+			//drawtree();
+			//deferred rendering===========================================================================================
+			FillBuffers();
+			DrawPointLights();
+			CombineBuffers();
+			//deferred rendering===========================================================================================
+			if (Window::GetKeyboard()->KeyDown(KEYBOARD_3)) {
+				//DrawScene();
+				//DrawPostProcess();
+				//PresentScene();
+			}
+			projMatrix = Matrix4::Perspective(1.0f, 15000.0f, (float)width / (float)height, 45.0f);
+			viewMatrix = camera->BuildViewMatrix();
+			//tu6 begin
+			BindShader(shaderforcube);
+			UpdateShaderMatrices();
+			glUniform1i(glGetUniformLocation(shaderforcube->GetProgram(), "diffuseTex"), 1);
+			DrawNode(root);
+			//DrawNode(model_soldier);
+			//tu6 end
+			//DrawShadowScene();
+			//DrawMainScene();
+		}
+		/*
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 		glViewport(0, 0, width, height);
 		viewMatrix = camera->BuildViewMatrix();
@@ -439,6 +502,7 @@ void Renderer::RenderScene() {
 		//tu6 end
 		//DrawShadowScene();
 		//DrawMainScene();
+		*/
 	}
 	
 
