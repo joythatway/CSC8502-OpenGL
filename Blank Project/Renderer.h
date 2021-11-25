@@ -3,6 +3,7 @@
 #include "..//nclgl/SceneNode.h"
 #include "..//nclgl/CubeRobot.h"
 #include "..//nclgl/teapot.h"
+#include "ParticleEmitter.h"
 
 class Camera;
 class Shader;
@@ -163,4 +164,14 @@ protected:
 	float wavetime;
 	float wavespeed;
 
+
+	//particle
+	public:
+		Shader* particleShader;
+		void drawparticle();
+	protected:
+		void SetShaderParticleSize(float f);
+		ParticleEmitter* emitter;
+
+	//particle
 };

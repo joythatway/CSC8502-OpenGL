@@ -28,6 +28,8 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	quad = Mesh::GenertateQuad();
 	post_quad = Mesh::GenertateQuad();
 	
+	emitter = new ParticleEmitter();
+
 	loadtexture();
 
 	loadshader();
@@ -280,6 +282,8 @@ void Renderer::loadshader() {
 	shaderforcube = new  Shader("SceneVertex.glsl", "SceneFragment.glsl");//tu6
 	modelshader = new Shader("modelshaderVertex.glsl", "modelshaderFrag.glsl");
 	treeshader = new Shader("PerPixelVertex.glsl", "PerPixelFragment.glsl");
+	particleShader = new Shader("particleVertex.glsl","particleFragment.glsl","particleGeometry.glsl");
+
 	//post_sceneShader = new Shader("TexturedVertex.glsl", "TexturedFragment.glsl");//tu 10
 	//post_processShader = new Shader("TexturedVertex.glsl", "processfrag.glsl");//tu 10
 	//if (!post_sceneShader) {
@@ -387,6 +391,9 @@ void Renderer::UpdateScene(float dt) {
 	camera03->UpdateCamera(dt);
 	updatetree(dt);
 	light->Update(dt);
+
+	emitter->Update(1000 * dt);
+
 	viewMatrix = camera->BuildViewMatrix();
 	waterRotate += dt * 2.0f;
 	waterCycle += dt * 1.25f;//0.25
@@ -418,6 +425,9 @@ void Renderer::RenderScene() {
 			DrawHeightmap();
 			DrawWater();
 			DrawModel1();
+
+			//drawparticle();
+
 			//drawtree();
 			//deferred rendering===========================================================================================
 			//FillBuffers();
@@ -874,7 +884,7 @@ void Renderer::loadMutiLight() {
 			0.5f + (float)(rand() / (float)RAND_MAX),
 			1));
 
-		l.SetRadius(650.0f + (rand() % 250));
+		l.SetRadius(800.0f + (rand() % 250));
 	}
 
 	sceneShader = new Shader("BumpVertex.glsl", "bufferFragment.glsl");
@@ -1062,4 +1072,28 @@ void Renderer::updatetree(float dt) {
 		mod_tree->SetTransform(mod_tree->GetTransform() * Matrix4::Rotation(-2.5f * dt, Vector3(1, 0, 1)));
 	}
 	
+}
+void Renderer::drawparticle() {
+	//glClearColor(0, 0, 0, 1);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	BindShader(particleShader);
+	glUseProgram(particleShader->GetProgram());
+	glUniform1i(glGetUniformLocation(particleShader->GetProgram(), "diffuseTex"), 1);
+
+	SetShaderParticleSize(emitter->GetParticleSize());
+	emitter->SetParticleSize(8.0f);
+	emitter->SetParticleVariance(1.0f);
+	emitter->SetLaunchParticles(16.0f);
+	emitter->SetParticleLifetime(2000.0f);
+	emitter->SetParticleSpeed(0.1f);
+	UpdateShaderMatrices();
+
+	emitter->Draw();
+
+	//glUseProgram(0);
+
+	//SwapBuffers();
+}
+void Renderer::SetShaderParticleSize(float f) {
+	glUniform1f(glGetUniformLocation(particleShader->GetProgram(), "particleSize"), f);
 }

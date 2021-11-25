@@ -139,11 +139,13 @@
     <ClCompile Include="BlankProject.cpp" />
     <ClCompile Include="model.cpp" />
     <ClCompile Include="model1.cpp" />
+    <ClCompile Include="ParticleEmitter.cpp" />
     <ClCompile Include="Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="model.h" />
     <ClInclude Include="model1.h" />
+    <ClInclude Include="ParticleEmitter.h" />
     <ClInclude Include="Renderer.h" />
   </ItemGroup>
   <ItemGroup>
