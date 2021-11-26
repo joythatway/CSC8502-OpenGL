@@ -806,7 +806,28 @@ void   Renderer::DrawNode(SceneNode* n) {
 		DrawNode(*i);
 	}
 }
+void   Renderer::BuildNodeLists(SceneNode* from) {
 
+	if (frameFrustum.InsideFrustum(*from)) {
+		Vector3  dir = from->GetWorldTransform().GetPositionVector() - camera->GetPosition();
+		from->SetCameraDistance(Vector3::Dot(dir, dir));
+		if (from->GetColour().w < 1.0f) {
+			transparentNodeList.push_back(from);
+		}
+		else {
+			nodeList.push_back(from);
+		}
+	}
+	for (vector <SceneNode*>::const_iterator i = from->GetChildIteratorStart(); i != from->GetChildIteratorEnd(); ++i) {
+		BuildNodeLists((*i));
+	}
+}
+
+void   Renderer::SortNodeLists() {
+	std::sort(transparentNodeList.rbegin(), transparentNodeList.rend(), SceneNode::CompareByCameraDistance);
+	std::sort(nodeList.begin(), nodeList.end(), SceneNode::CompareByCameraDistance);
+
+}
 //post processing begin
 /*
 void Renderer::DrawScene() {

@@ -1,6 +1,7 @@
 #pragma once
 #include "Matrix4.h"
 #include "Vector3.h"
+#include "HeightMap.h"
 
 class Camera {
 public:
@@ -28,6 +29,7 @@ public:
 	bool autocamera = false;
 	bool speedup = false;
 	//int mode = 0;
+	HeightMap* camheightMap;
 	bool cameramode = true;
 	Vector3 firstposition;
 	Vector3 secondposition;

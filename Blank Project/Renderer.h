@@ -2,6 +2,7 @@
 #include "../NCLGL/OGLRenderer.h"
 #include "..//nclgl/SceneNode.h"
 #include "..//nclgl/CubeRobot.h"
+#include "..//nclgl/Frustum.h"
 #include "..//nclgl/teapot.h"
 #include "ParticleEmitter.h"
 
@@ -29,6 +30,9 @@ public:
 	void updatetree(float dt);
 	bool changecamera = false;
 	bool deferredrendering = true;
+	void BuildNodeLists(SceneNode* from);
+	void SortNodeLists();
+	void ClearNodeLists();
 
 protected:
 	//cube Mapping
@@ -90,8 +94,10 @@ protected:
 
 	int currentFrame;
 	float frameTime;
-
-
+	//
+	Frustum      frameFrustum;
+	vector <SceneNode*> transparentNodeList;
+	vector <SceneNode*> nodeList;
 	//tu 6
 
 	void DrawNode(SceneNode* n);

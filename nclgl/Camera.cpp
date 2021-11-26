@@ -4,7 +4,8 @@
 #include "../nclgl/HeightMap.h"
 
 float speed = 0;
-//int mode = 0;
+int mode = 6000;
+float camtime = 0;
 void Camera::UpdateCamera(float dt) {
 	
 	
@@ -20,19 +21,64 @@ void Camera::UpdateCamera(float dt) {
 		//mode=1;// open free camera;
 		cameramode = false;
 	}
-
+	
 	if (cameramode) {
 		//autoCamera();//
-		speed = 200.0f * dt;
+		speed = 200.0f * dt;////////////////////////////
+		/*
 		//firstposition = GetPosition();
-		position += auto_forward * speed;//here is  movement
+		//position += auto_forward * speed;//here is  movement/////////////////////////
 		//SetPosition(Vector3(100,50,100));
-		//position -= auto_right * speed;
-		
+		//position -= auto_right * speed;////////////////////////////////
+		//yaw += -2*dt;////////////////////////////
+		//SetPosition(hSize * Vector3(0.5, 0.5, 0.5));
+		if (mode <= 6000 && mode>=4000) {
+			mode -= dt;
+			position += auto_forward * speed;
+		}if (mode <= 5000 && mode >= 3000) {
+			mode -= dt;
+			position -= auto_right * speed;
+			yaw += -3 * dt;
+		}if (mode <= 3000 && mode >= 2000) {
+			SetPosition(Vector3(100, 1050, 100));
+			//pitch = -2*dt;
+			yaw = GetYaw() + 2 * dt;
+
+		}if (mode <= 0) {
+			mode = 6000;
+		}
+		*/
+		camtime = camtime + dt;
+		pitch = std::min(pitch, 90.0f);
+		pitch = std::max(pitch, -90.0f);
+		if (camtime < 50) {
+			position += auto_forward * speed;
+		}if (camtime >= 50 && camtime < 70) {
+			yaw -= 10.0f * dt;
+		}if (camtime >= 70 && camtime < 90) {
+			yaw += 10.0f * dt;
+		}if (camtime >= 90 && camtime < 100) {
+			SetPosition(Vector3(3800, 2500, 3800));
+		}if (camtime >= 100 && camtime < 110) {
+			position += auto_forward * speed*1.5;
+		}if (camtime >= 110 && camtime < 160) {
+			yaw -= 20.0f * dt;
+			position.y -= speed*0.5f;
+		}if (camtime >= 160 && camtime < 165) {
+			position -= auto_forward * speed*5;
+		}if (camtime >= 165 && camtime < 170) {
+			position -= auto_forward * speed;
+			pitch -=5.0f * dt;
+		}if (camtime >= 170 && camtime < 175) {
+			pitch += 5.0f * dt;
+		}
+
+
+
 	}
 	else if (!cameramode) {
 		//free camera
-
+		mode = 6000;
 		if (speedup) {
 			speed = 900.0f * dt;
 		}
